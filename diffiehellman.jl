@@ -1,5 +1,6 @@
-function diffiehellman0(i::BigInt)
+function diffiehellman0(m::BigInt)
 #include find.jl
+	i=BigInt(2)^(nbits(fmpz(m))*2+100)
 	p=BigInt(nextprime(abs(rand(Int64))))
 	while p<i
 		p=next_prime(10*p)
@@ -10,13 +11,13 @@ function diffiehellman0(i::BigInt)
 end
 
 function diffiehellmanA(P::NfAbsOrdIdl)
-	a=abs(rand(Int64))
+	a=abs(rand(10000000:fmpz(10)^60))
 	A=Hecke.power_class(P,fmpz(a))
 	return a,A
 end
 
 function diffiehellmanB(P::NfAbsOrdIdl)
-	b=abs(rand(Int64))
+	b=abs(rand(10000000:fmpz(10)^60))
 	B=Hecke.power_class(P,fmpz(b))
 	return b,B
 end
