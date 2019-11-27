@@ -24,4 +24,6 @@ end
 function diffiehellman1(A::NfAbsOrdIdl,b::Int64)
 	K=Hecke.power_class(A,fmpz(b))
 	return K
+print("hh")
 end
+
