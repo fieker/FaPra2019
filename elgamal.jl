@@ -5,7 +5,7 @@ function encode(p::BigInt,m::BigInt)
 end
 
 function elgamalB(M::NfAbsOrdIdl,A::NfAbsOrdIdl,P::NfAbsOrdIdl)
-	b=abs(rand(Int64))
+	b=abs(rand(10000000:fmpz(10)^60)))
 	B=Hecke.power_class(P,fmpz(b))	
 	C=(M*(Hecke.power_class(A,fmpz(b))))
 	return C,B
