@@ -36,9 +36,5 @@ function testmyelgamal(m::BigInt)
 	println("Mneu=",Mneu)
 	mneu=decode(Mneu)
 	println("mneu=",mneu)
-	if m==mneu
-		print("ja")
-	else
-		print("nein")
-	end
+	return m==mneu
 end
