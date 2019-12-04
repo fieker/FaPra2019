@@ -55,6 +55,7 @@ function bsgs(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrd
 	c,mc=class_group(order(A))
 	n=BigInt(order(c))
 	m=BigInt(ceil(sqrt(n)))
+	println(m)
 	g=[]
 	h=[A]
 	d=0
@@ -63,33 +64,26 @@ function bsgs(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrd
 	for i=1:m
 		push!(g,Hecke.power_class(P,fmpz(i-1)))
 	end
+	println("fertig1")
 	for i=1:m
-		push!(h,h[i]*x)
-		#println(i)
-		#println(h)
+		push!(h,Hecke.reduce_ideal(h[i]*x))
+		println(i)
 		for j=1:m
-			println(Hecke.reduce_ideal(h[i+1]*inv(g[j])))
-			if Hecke.reduce_ideal(h[i+1]*inv(g[j])).gen_one==1
-				d=j
-				l=i+1
-				println()
-				break
+			if isone(Hecke.reduce_ideal(h[i]*inv(g[j])))
+				d=j-1
+				l=i-1
+				return d+l*m
 			end
 		end
 	end
-	a=d+l*m
-	#if C==0
-		return a
-	#else
-	#	return Mneuneu=Hecke.reduce_ideal(C*(Hecke.power_class(B,fmpz(a))))
-	#end
 end
 
-function testbsgs()
-	m=BigInt(17)
-	println("m=",m)
-	p=BigInt(nextprime(10000000000000))
+function testbsgs(p::Int64)
+	#m=BigInt(17)
+	#println("m=",m)
+	p=BigInt(nextprime(p))
 	k,a=quadratic_field(-p)
+	zk=maximal_order(k)
 	c,mc=class_group(k)
 	println("c=",c)
 	P=mc(c[1])
@@ -98,14 +92,15 @@ function testbsgs()
 	a,A=diffiehellmanA(P)
 	println("a=",a)
 	println("A=",A)
-	M=encode_klein(p,m)
-	println("M=",M)
-	C,B=elgamalB(M,A,P)
-	println("C=",C)
+	#M=encode_klein(p,m)
+	#println("M=",M)
+	#C,B=elgamalB(M,A,P)
+	#println("C=",C)
 	#Mneu=elgamalA(C,B,a)
 	#println("Mneu=",Mneu)
-	a=bsgs(p,P,A,C,B)
-	println("a=",a)
+	aneu=bsgs(p,P,A,0*zk,0*zk)
+	println("aneu=",aneu)
+	return (a%order(c))==aneu
 	#return Hecke.reduce_ideal(M*inv(Mneuneu))
 end
 				
