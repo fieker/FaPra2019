@@ -12,24 +12,30 @@ end
 function angriff(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrdIdl)
 	k,a=quadratic_field(-p)
 	c,mc=class_group(order(A))
-	n=BigInt(order(c))
-	println("n=",n)
-	l=BigInt(order(preimage(mc,A)))
-	println("l=",l)
-	a=fmpz(n/l)
-	println("a=",a)
-	if C==0
-		return Hecke.power_class(P,a)==A
-	else
-		return Mneuneu=Hecke.reduce_ideal(C*(Hecke.power_class(B,a))),l
+	n=collect(Primes.factor(BigInt(order(c))))
+	ar =[]
+	preP=BigInt(preimage(mc,P).coeff[1])
+	preA=BigInt(preimage(mc,A).coeff[1])
+	partP=[]
+	partA=[]
+	ar2=[]
+	vgl=[]
+	ar3=[]
+	for i=1:length(n)
+		push!(ar,n[i][1]^n[i][2])
+		push!(partP,preP%ar[i])
+		push!(partA,preA%ar[i])
+		push!(ar2,div(ar[i],gcd(partP[i],ar[i])))
+		push!(vgl,gcd(partP[i],ar[i])!=1)
+		push!(ar3,partA[i]*gdcx(partP[i],ar2[i])[2])
 	end
-
+	crt(ar3,ar2)
 end	
 
 function testmyangriff()
 	m=BigInt(17)
 	println("m=",m)
-	p=BigInt(nextprime(10000000000))
+	p=BigInt(nextprime(10))
 	k,a=quadratic_field(-p)
 	c,mc=class_group(k)
 	println("c=",c)
