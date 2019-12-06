@@ -1,12 +1,17 @@
 function diffiehellman0(m::BigInt)
 #include find.jl
 	i=BigInt(2)^(nbits(fmpz(m))*2+100)
-	p=BigInt(nextprime(abs(rand(Int64))))
-	while p<i
-		p=next_prime(10*p)
-	end
+	#p=BigInt(nextprime(abs(rand(Int64)))) das macht die ganze Sache sehr langsam!!
+	p=BigInt(nextprime(rand(i:i+10^10)))#einfach mit der Suche schon bei i starten!!!
+	#while p<i das kann man sich dann sparen
+	#	p=next_prime(10*p)
+	#	#println("Primzahlsuche")
+	#end
+	println("Primzahl gefunden")
 	k,a=quadratic_field(-p)
+	println("zahlkörper erstellt")
 	P=findnonprincipal(BigInt(p),BigInt(floor(sqrt(p))),BigInt(100000*floor(sqrt(p))))
+	println("ideal gefunden")
 	return p,P
 end
 
@@ -14,9 +19,12 @@ function diffiehellmanA(P::NfAbsOrdIdl)
 	A=P
 	a=0
 	while Hecke.reduce_ideal(P*inv(A)).gen_one==1 || Hecke.reduce_ideal(A).gen_one==1
+		println("nicht-trivialität geprüft")
 		a=abs(rand(10000000:fmpz(10)^60))
 		A=Hecke.power_class(P,fmpz(a))
+		println("Schlüssel berechnet")
 	end
+	println("finaler schlüssel")
 	return a,A
 end
 

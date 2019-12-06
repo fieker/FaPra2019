@@ -2,10 +2,13 @@ function findnonprincipal(p::BigInt,m::BigInt,n::BigInt)
 #prime_decomposition, using Primes
 	k,a=quadratic_field(-p)
 	zk=maximal_order(k)
+	println("zk bestimmt")#zk braucht lange
 	i=nextprime(m)
 	while i<n
 		x=prime_decomposition(zk,fmpz(i))
+		println("faktorisierung bestimmt")
 		for j=1:length(x)
+			println("hauptideal abfrage")#braucht auch lange
 			if isone(Hecke.reduce_ideal(x[j][1]))==false
 				return x[j][1]
 			end
