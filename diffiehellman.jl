@@ -8,8 +8,8 @@ function diffiehellman0(m::BigInt)
 	#	#println("Primzahlsuche")
 	#end
 	println("Primzahl gefunden")
-	k,a=quadratic_field(-p)
-	println("zahlkörper erstellt")
+	#k,a=quadratic_field(-p)
+	#println("zahlkörper erstellt")
 	P=findnonprincipal(BigInt(p),BigInt(floor(sqrt(p))),BigInt(100000*floor(sqrt(p))))
 	println("ideal gefunden")
 	return p,P
