@@ -1,13 +1,13 @@
 function findnonprincipal(p::BigInt,m::BigInt,n::BigInt)
 #prime_decomposition, using Primes
 	k,a=quadratic_field(-p)
+	print(k)
 	@time zk=maximal_order(k)
 	println("zk bestimmt")#zk braucht lange
 	i=nextprime(m)
 	while i<n
 		@time x=prime_decomposition(zk,fmpz(i))
 		println("faktorisierung bestimmt", length(x))
-		println(x)
 		for j=1:length(x)
 			if length(x)>1
 			println("hauptideal abfrage")#braucht auch lange

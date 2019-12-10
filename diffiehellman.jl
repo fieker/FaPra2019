@@ -1,12 +1,7 @@
 function diffiehellman0(m::BigInt)
 #include find.jl
 	i=BigInt(2)^(nbits(fmpz(m))*2+100)
-	#p=BigInt(nextprime(abs(rand(Int64)))) das macht die ganze Sache sehr langsam!!
-	p=BigInt(nextprime(rand(i:i+10^10)))#einfach mit der Suche schon bei i starten!!!
-	#while p<i das kann man sich dann sparen
-	#	p=next_prime(10*p)
-	#	#println("Primzahlsuche")
-	#end
+	p=BigInt(nextprime(rand(i:i+10^10)))
 	println("Primzahl gefunden")
 	#k,a=quadratic_field(-p)
 	#println("zahlkörper erstellt")

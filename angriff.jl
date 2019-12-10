@@ -9,51 +9,61 @@ function decode_klein(M::NfAbsOrdIdl)
 	return m
 end
 
-function angriff(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrdIdl)
-	k,a=quadratic_field(-p)
+function angriff(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
+	#k,a=quadratic_field(-p)
 	c,mc=class_group(order(A))
 	n=collect(Primes.factor(BigInt(order(c))))
+	#Primfaktorzerlegung der Ordnung der Klassengruppe
 	ar =[]
-	preP=BigInt(preimage(mc,P).coeff[1])
-	preA=BigInt(preimage(mc,A).coeff[1])
+	#teilerfremde Komponenten von n
+	logP=BigInt(preimage(mc,P).coeff[1])
+	println("logP=",logP)
+	println("ordP=",order(preimage(mc,P)))
+	logA=BigInt(preimage(mc,A).coeff[1])
+	println("logA=",logA)
 	partP=[]
+	#Komponenten in den Zni
 	partA=[]
 	ar2=[]
+	#partP soll teilerfremd zu den Einträgen in ar sein deshalb durch den ggt teilen
 	vgl=[]
+	#vergleiche wo ar2 und ar unterschiedlich sind
 	ar3=[]
+	#lag(A)/log(P) 
+	if gcd(logP,BigInt(order(c)))==1
+		println(1)
+		return a=logA*(gcdx(logP,BigInt(order(c)))[2])
+	end
 	for i=1:length(n)
 		push!(ar,n[i][1]^n[i][2])
-		push!(partP,preP%ar[i])
-		push!(partA,preA%ar[i])
-		push!(ar2,div(ar[i],gcd(partP[i],ar[i])))
+		push!(partP,logP%ar[i])
+		push!(partA,logA%ar[i])
+		push!(ar2,fmpz(div(ar[i],gcd(partP[i],ar[i]))))
 		push!(vgl,gcd(partP[i],ar[i])!=1)
-		push!(ar3,partA[i]*gdcx(partP[i],ar2[i])[2])
+		push!(ar3,fmpz(partA[i]*gcdx(fmpz(partP[i]),ar2[i])[2]))
 	end
-	crt(ar3,ar2)
+	if length(ar2)>1
+		println(2)
+		return crt(ar3,ar2)
+	end
 end	
 
-function testmyangriff()
-	m=BigInt(17)
-	println("m=",m)
-	p=BigInt(nextprime(10))
+function testmyangriff(i::Int128)
+	p=BigInt(nextprime(i))
 	k,a=quadratic_field(-p)
 	c,mc=class_group(k)
 	println("c=",c)
-	P=mc(c[1])
+	#P=mc(c[1])
+	P=findnonprincipal(p,p*10,p*20)
 	println("p=",p)
 	println("P=",P)
 	a,A=diffiehellmanA(P)
 	println("a=",a)
 	println("A=",A)
-	M=encode_klein(p,m)
-	println("M=",M)
-	C,B=elgamalB(M,A,P)
-	println("C=",C)
-	#Mneu=elgamalA(C,B,a)
-	#println("Mneu=",Mneu)
-	Mneuneu,l=angriff(p,P,A,C,B)
-	println("Mneuneu=",Mneuneu)
-	return Hecke.reduce_ideal(M*inv(Mneuneu))
+	aneu=angriff(p,P,A)
+	println("aneu=",aneu)
+	Aneu=Hecke.power_class(P,fmpz(aneu))
+	return isone(Hecke.reduce_ideal(A*inv(Aneu)))
 end
 
 function bsgs(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrdIdl)
