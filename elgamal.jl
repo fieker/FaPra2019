@@ -1,28 +1,28 @@
 function encode(p::BigInt,m::BigInt)
 #include find.jl
 	M=findnonprincipal(BigInt(p),m*10^8,m*10^9)
-	println("Nachricht kodiert")
+	#println("Nachricht kodiert")
 	return Hecke.reduce_ideal(M)
 end
 
 function elgamalB(M::NfAbsOrdIdl,A::NfAbsOrdIdl,P::NfAbsOrdIdl)
 	b=abs(rand(10000000:fmpz(10)^60))
 	B=Hecke.power_class(P,fmpz(b))	
-	C=(M*(Hecke.power_class(A,fmpz(b))))
-	println("Nachricht verschlüsselt")
+	C=Hecke.reduce_ideal(M*(Hecke.power_class(A,fmpz(b))))
+	#println("Nachricht verschlüsselt")
 	return C,B
 end
 
 function elgamalA(C::NfAbsOrdIdl,B::NfAbsOrdIdl,a::fmpz)
 	M=C*(Hecke.power_class(B,fmpz(-a)))
-	println("Nachricht entschlüsselt")
+	#println("Nachricht entschlüsselt")
 	
 	return Hecke.reduce_ideal(M)
 end
 
 function decode(M::NfAbsOrdIdl)
 	m=divrem(M.gen_one,10^8)[1]
-	println("Nachricht dekodiert")
+	#println("Nachricht dekodiert")
 	return m
 end
 

@@ -32,37 +32,62 @@ function angriff(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
 	#lag(A)/log(P) 
 	if gcd(logP,BigInt(order(c)))==1
 		println(1)
-		return a=logA*(gcdx(logP,BigInt(order(c)))[2])
+		return logA*(gcdx(logP,BigInt(order(c)))[2]),0
 	end
 	for i=1:length(n)
 		push!(ar,n[i][1]^n[i][2])
 		push!(partP,logP%ar[i])
 		push!(partA,logA%ar[i])
-		push!(ar2,fmpz(div(ar[i],gcd(partP[i],ar[i]))))
-		push!(vgl,gcd(partP[i],ar[i])!=1)
-		push!(ar3,fmpz(partA[i]*gcdx(fmpz(partP[i]),ar2[i])[2]))
+		if fmpz(div(ar[i],gcd(partP[i],ar[i])))!=1
+			push!(ar2,fmpz(div(ar[i],gcd(partP[i],ar[i]))))
+		end
 	end
+	for i=1:length(ar2)
+		push!(vgl,gcd(partP[i],ar[i])!=1)
+		push!(ar3,fmpz(partA[i]*gcdx(div(partP[i],BigInt(gcd(partP[i],ar2[i]))),BigInt(ar2[i]))[2]))
+	end
+	println(ar)
+	println(ar2)
+	println(vgl)
+	x=1
+	#for i=1:length(vgl)
+	#	if vgl[i]==true
+	#		x*=(ar[i])/BigInt(ar2[i])
+	#	end
+	#end
 	if length(ar2)>1
 		println(2)
-		return crt(ar3,ar2)
+		println(logA*(gcdx(BigInt(logP/BigInt(gcd(logP,order(c)))),BigInt(order(c)))[2]))
+		return crt(ar3,ar2),x
+	else
+		println(3)
+		println(logA*(gcdx(BigInt(logP/BigInt(gcd(logP,order(c)))),BigInt(order(c)))[2]))
+		return ar3[1],x
 	end
 end	
 
-function testmyangriff(i::Int128)
+function testmyangriff(i::BigInt)
 	p=BigInt(nextprime(i))
 	k,a=quadratic_field(-p)
 	c,mc=class_group(k)
 	println("c=",c)
 	#P=mc(c[1])
-	P=findnonprincipal(p,p*10,p*20)
+	P=findnonprincipal(p,p*10,p*200)
 	println("p=",p)
-	println("P=",P)
+	#println("P=",P)
 	a,A=diffiehellmanA(P)
 	println("a=",a)
-	println("A=",A)
-	aneu=angriff(p,P,A)
+	#println("A=",A)
+	aneu,x=angriff(p,P,A)
 	println("aneu=",aneu)
+	println("x=",x)
 	Aneu=Hecke.power_class(P,fmpz(aneu))
+	count=1
+	while isone(Hecke.reduce_ideal(A*inv(Aneu)))==false && count<order(c)
+    	Aneu=Hecke.reduce_ideal(Aneu*Hecke.power_class(P,fmpz(x)))
+		print(count,"  ")
+		count+=1
+    end
 	return isone(Hecke.reduce_ideal(A*inv(Aneu)))
 end
 
