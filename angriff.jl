@@ -32,7 +32,7 @@ function angriff(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
 	#lag(A)/log(P) 
 	if gcd(logP,BigInt(order(c)))==1
 		println(1)
-		return logA*(gcdx(logP,BigInt(order(c)))[2]),0
+		return logA*(gcdx(logP,BigInt(order(c)))[2])
 	end
 	for i=1:length(n)
 		push!(ar,n[i][1]^n[i][2])
@@ -58,12 +58,22 @@ function angriff(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
 	if length(ar2)>1
 		println(2)
 		println(logA*(gcdx(BigInt(logP/BigInt(gcd(logP,order(c)))),BigInt(order(c)))[2]))
-		return crt(ar3,ar2),x
+		aneu= crt(ar3,ar2)
 	else
 		println(3)
 		println(logA*(gcdx(BigInt(logP/BigInt(gcd(logP,order(c)))),BigInt(order(c)))[2]))
-		return ar3[1],x
+		aneu= ar3[1]
 	end
+	println("aneu=",aneu)
+	println(ar3)
+	count=1
+	Aneu=Hecke.power_class(P,fmpz(aneu))
+	while isone(Hecke.reduce_ideal(A*inv(Aneu)))==false && count<order(c)
+    	Aneu=Hecke.reduce_ideal(Aneu*Hecke.power_class(P,fmpz(x)))
+		print(count,"  ")
+		count+=1
+    end
+	return aneu+count-1
 end	
 
 function testmyangriff(i::BigInt)
@@ -78,16 +88,10 @@ function testmyangriff(i::BigInt)
 	a,A=diffiehellmanA(P)
 	println("a=",a)
 	#println("A=",A)
-	aneu,x=angriff(p,P,A)
+	aneu=angriff(p,P,A)
 	println("aneu=",aneu)
-	println("x=",x)
 	Aneu=Hecke.power_class(P,fmpz(aneu))
-	count=1
-	while isone(Hecke.reduce_ideal(A*inv(Aneu)))==false && count<order(c)
-    	Aneu=Hecke.reduce_ideal(Aneu*Hecke.power_class(P,fmpz(x)))
-		print(count,"  ")
-		count+=1
-    end
+	
 	return isone(Hecke.reduce_ideal(A*inv(Aneu)))
 end
 
