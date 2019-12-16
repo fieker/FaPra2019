@@ -91,6 +91,38 @@ function testmyangriff(i::BigInt)
 	return isone(Hecke.reduce_ideal(A*inv(Aneu)))
 end
 
+function angriff2(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
+	k,a=quadratic_field(-p)
+	c,mc=class_group(k)
+	logP=preimage(mc,P)
+	println("logP=",logP)
+	ordP=order(preimage(mc,P))
+	println("ordP=",ordP)
+	logA=preimage(mc,A)
+	println("logA=",logA)
+	h=hom(AbelianGroup([ordP]),c,[logP])
+	X=haspreimage(h,logA)
+	if X[1]
+		return X[2][1]
+	else
+		print("fehler")
+	end
+end
+
+function testmyangriff2(i::BigInt)
+	p=BigInt(nextprime(i))
+	P=findnonprincipal(p,p*10,p*200)
+	println("p=",p)
+	println("P=",P)
+	a,A=diffiehellmanA(P)
+	println("a=",a)
+	println("A=",A)
+	aneu=angriff2(p,P,A)
+	println("aneu=",aneu)
+	Aneu=Hecke.power_class(P,aneu)
+	return isone(Hecke.reduce_ideal(A*inv(Aneu)))
+end
+
 function bsgs(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrdIdl)
 	k,a=quadratic_field(-p)
 	c,mc=class_group(order(A))
