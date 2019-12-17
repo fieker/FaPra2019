@@ -1,16 +1,23 @@
-function findnonprincipal(p::BigInt,m::BigInt,n::BigInt)
-#prime_decomposition, using Primes
+######
+@doc Markdown.doc"""
+findnonprincipal(p::BigInt,s::BigInt) -> NfAbsOrdIdl
+
+returns a nonprincipal ideal in O over Q[sqrt(-p)] with first generator >= s (but only slightly)
+"""
+function findnonprincipal(p::BigInt,s::BigInt)
 	k,a=quadratic_field(-p)
-	print(k)
-	zk=maximal_order(k)
-	#println("zk bestimmt")#zk braucht lange
-	i=nextprime(m)
+	#println(k)
+	if s%10^8!=0
+		@time max_order1(p)
+	end
+	@time zk=maximal_order(k)
+	#println("zk bestimmt")
+	i=nextprime(s)
+	n=s*1000+1000
 	while i<n
 		 x=prime_decomposition(zk,fmpz(i))
-		#println("faktorisierung bestimmt", length(x))
 		for j=1:length(x)
 			if length(x)>1
-			#println("hauptideal abfrage")#braucht auch lange
 				if isone(Hecke.reduce_ideal(x[j][1]))==false
 					return x[j][1]
 				end
@@ -21,25 +28,18 @@ function findnonprincipal(p::BigInt,m::BigInt,n::BigInt)
 	print("alle Ideale sind Hauptideale")
 end
 
-function findnonprincipal2(p::BigInt,m::BigInt,n::BigInt)
-#factor
+@doc Markdown.doc"""
+max_order1(p::BigInt) 
+sets maximal order of an AnticNumberField knowing that p is squarefree
+"""
+function max_order1(p::BigInt)
 	k,a=quadratic_field(-p)
-	zk=maximal_order(k)
-	i=nextprime(m)
-	b=true
-	while i<n
-		PFZ=collect(keys(Hecke.factor(i*zk)))
-		#PFZExp=collect(values(Hecke.factor(i*zk)))
-		for j=1:length(PFZ)
-			b=Hecke.isprincipal(Hecke.reduce_ideal(PFZ[j]))[1]
-			print(b)
-			if b==false
-				return PFZ[j]
-			end
-		end
-		i=i+1
+	if -p%4==1
+		d=1//2*a+1//2
+	else
+		d=a
 	end
-	print("alle Ideale sind Hauptideale")
+	zk=Order(k,[k(1),d];check=false,cached=false)
+	zk.ismaximal=1
+	Hecke._set_maximal_order_of_nf(k,zk)
 end
-				
-				
