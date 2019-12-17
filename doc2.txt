@@ -1,0 +1,17 @@
+Zeit von zk
+
+
+erste Version:(findnonprincipal)
+BigInt(18)*BigInt(10)^200)(Nachricht)
+9.334654 seconds (173.35 k allocations: 130.234 MiB, 0.14% gc time)
+zk bestimmt
+
+BigInt(10)^850(Nachricht)
+2645.041057 seconds (296.27 M allocations: 598.330 GiB, 0.61% gc time)
+zk bestimmt
+
+
+zweite Version:(mit zk selbst berechnet)
+BigInt(17)*BigInt(10)^800(Nachricht)
+0.000168 seconds (575 allocations: 37.920 KiB)
+zk bestimmt
