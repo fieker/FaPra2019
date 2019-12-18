@@ -63,6 +63,7 @@ determines a s.th. P^a=A in O over Q[sqrt(-p)]
 function attack2(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
 	k,a=quadratic_field(-p)
 	c,mc=class_group(k)
+	println("c=",c)
 	logP=preimage(mc,P)
 	println("logP=",logP)
 	ordP=order(preimage(mc,P))
@@ -112,10 +113,10 @@ function bsgs(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrd
 	for i=1:m
 		push!(g,Hecke.power_class(P,fmpz(i-1)))
 	end
-	println("fertig1")
+	#println("fertig1")
 	for i=1:m
 		push!(h,Hecke.reduce_ideal(h[i]*x))
-		println(i)
+		#println(i)
 		for j=1:m
 			if isone(Hecke.reduce_ideal(h[i]*inv(g[j])))
 				d=j-1
