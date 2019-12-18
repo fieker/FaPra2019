@@ -23,7 +23,8 @@ determines private and public key for the receiver
 function diffiehellmanA(P::NfAbsOrdIdl)
 	A=P
 	a=0
-	while Hecke.reduce_ideal(P*inv(A)).gen_one==1 || Hecke.reduce_ideal(A).gen_one==1
+	count=0
+	while count<(P.gen_one*100) && (Hecke.reduce_ideal(P*inv(A)).gen_one==1 || Hecke.reduce_ideal(A).gen_one==1)
 		#println("nicht-trivialität geprüft")
 		a=abs(rand(10000000:fmpz(10)^60))
 		A=Hecke.power_class(P,fmpz(a))

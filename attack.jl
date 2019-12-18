@@ -6,8 +6,9 @@ determines a s.th. P^a=A in O over Q[sqrt(-p)]
 """
 
 function attack(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl)
-	#k,a=quadratic_field(-p)
+	k,a=quadratic_field(-p)
 	c,mc=class_group(order(A))
+	println("c=",c)
 	n=collect(Primes.factor(BigInt(order(c))))
 	#Primfaktorzerlegung der Ordnung der Klassengruppe
 	ar =[]
@@ -40,9 +41,6 @@ end
 function testmyattack(i::BigInt)
 	p=BigInt(nextprime(i))
 	println("p=",p)
-	k,a=quadratic_field(-p)
-	c,mc=class_group(k)
-	println("c=",c)
 	P=findnonprincipal(p,p*10)
 	println("P=",P)
 	a,A=diffiehellmanA(P)
@@ -102,7 +100,7 @@ determines a s.th. P^a=A in O over Q[sqrt(-p)] via Babystep-Giantstep
 function bsgs(p::BigInt,P::NfAbsOrdIdl,A::NfAbsOrdIdl,C::NfAbsOrdIdl,B::NfAbsOrdIdl)
 	k,a=quadratic_field(-p)
 	c,mc=class_group(order(A))
-	n=BigInt(order(c))
+	n=BigInt(order(preimage(mc,P)))
 	m=BigInt(ceil(sqrt(n)))
 	println(m)
 	g=[]
@@ -133,7 +131,9 @@ function testbsgs(p::Int64)
 	zk=maximal_order(k)
 	c,mc=class_group(k)
 	println("c=",c)
-	P=mc(c[1])
+	#P=mc(c[1])
+	P=findnonprincipal(p,p*10)
+	println("order(P)=",order(preimage(mc,P)))
 	println("p=",p)
 	println("P=",P)
 	a,A=diffiehellmanA(P)
@@ -143,4 +143,42 @@ function testbsgs(p::Int64)
 	println("aneu=",aneu)
 	return (a%order(c))==aneu
 end
-				
+
+#ACHTUNG find anpassen
+function encodeklein(p::BigInt,m::BigInt)
+	M=findnonprincipal(BigInt(p),m*10^2)
+	#println("Nachricht kodiert")
+	return Hecke.reduce_ideal(M)
+end
+
+function decodeklein(M::NfAbsOrdIdl)
+	m=divrem(M.gen_one,10^2)[1]
+	#println("Nachricht dekodiert")
+	return BigInt(m)
+end
+
+function testencrypt(i::BigInt,m::BigInt,d::Int64)
+	println("d=",d)
+	p=BigInt(nextprime(i))
+	println("p=",p)
+	P=findnonprincipal(p,p*10)
+	println("P=",P)
+	a,A=diffiehellmanA(P)
+	println("a=",a)
+	println("A=",A)
+	M=encodeklein(p,m)
+	B,C=elgamalB(M,A,P)
+	if d==1
+		aneu=attack(p,P,A)
+	elseif d==2
+		aneu=attack2(p,P,A)
+	elseif d==3
+		aneu=bsgs(p,P,A,C,B)
+	else
+		println("d nicht erlaubt")
+	end
+	Mneu=elgamalA(C,B,fmpz(aneu))
+	mneu=decodeklein(Mneu)
+	return m==mneu
+end
+			

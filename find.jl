@@ -7,7 +7,7 @@ returns a nonprincipal ideal in O over Q[sqrt(-p)] with first generator >= s (bu
 function findnonprincipal(p::BigInt,s::BigInt)
 	k,a=quadratic_field(-p)
 	#println(k)
-	if s%10^8!=0
+	if s%10^2!=0
 		@time max_order1(p)
 	end
 	@time zk=maximal_order(k)
@@ -34,7 +34,7 @@ sets maximal order of an AnticNumberField knowing that p is squarefree
 """
 function max_order1(p::BigInt)
 	k,a=quadratic_field(-p)
-	if -p%4==1
+	if mod(-p,4)==1
 		d=1//2*a+1//2
 	else
 		d=a
