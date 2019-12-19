@@ -34,6 +34,10 @@ sets maximal order of an AnticNumberField knowing that p is squarefree
 """
 function max_order1(p::BigInt)
 	k,a=quadratic_field(-p)
+        zk = Hecke._get_maximal_order_of_nf(k, false)
+        if zk !== nothing
+          return
+        end
 	if mod(-p,4)==1
 		d=1//2*a+1//2
 	else
