@@ -7,9 +7,9 @@ returns a nonprincipal ideal in O over Q[sqrt(-p)] with first generator >= s (bu
 function findnonprincipal(p::BigInt,s::BigInt)
 	k,a=quadratic_field(-p)
 	#println(k)
-	if s%10^2!=0
+	#if s%10^2!=0
 		@time max_order1(p)
-	end
+	#end
 	@time zk=maximal_order(k)
 	#println("zk bestimmt")
 	i=nextprime(s)
