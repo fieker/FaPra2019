@@ -1,3 +1,52 @@
+mutable struct QuadForm
+  a::fmpz
+  b::fmpz
+  c::fmpz
+  function QuadForm(a, b, c)
+    return new(fmpz(a), fmpz(b), fmpz(c))
+  end
+end
+
+function Hecke.discriminant(f::QuadForm)
+  return f.b^2 - 4*f.a*f.c
+end
+
+function Base.show(io::IO, f::QuadForm)
+  print(io, "my first form: <$(f.a), $(f.b), $(f.c)>")
+end
+
+function formreduce(f::QuadForm)
+	#D=b*b-4*a*c
+        a = f.a
+        b = f.b
+        c = f.c
+	if b<=(-a) || a<b
+		q, r = divrem(b, 2*a)
+		if r>a
+			r=r-2*a
+			q=q+1
+		end
+		c=c-divexact((b+r)*q, 2)
+		b=r
+	end
+	if a>c
+		b=-b 
+		x=a
+		a=c
+		c=x
+                q, r = divrem(b, 2*a)
+		if r>a
+			r=r-2*a
+			q=q+1
+		end
+		c=c-divexact((b+r)*q, 2)
+		b=r
+	elseif a==c && b<0
+		b=-b
+	end
+	return QuadForm(a, b, c)
+end
+
 function formreduce(f::Array{Float64,1})
 	a=f[1]
 	b=f[2]
