@@ -47,13 +47,17 @@ function formreduce(f::QuadForm)
 	return QuadForm(a, b, c)
 end
 
-function formreduce(f::Array{Float64,1})
+
+function formreduce(f::Array{fmpz,1})
 	a=f[1]
 	b=f[2]
 	c=f[3]
 	#D=b*b-4*a*c
 	if b<=(-a) || a<b
 		r=Int64(b%(2*a))
+		iprintln("b=",b)
+		println("r=",r)
+		println("a=",a)
 		q=Int64((b-r)/(2*a))
 		if r>a
 			r=r-2*a
@@ -67,7 +71,10 @@ function formreduce(f::Array{Float64,1})
 		x=a
 		a=c
 		c=x
+		println("b=",b)
+		println("a=",a)
 		r=Int64(b%(2*a))
+		println("r=",r)
 		q=Int64((b-r)/(2*a))
 		if r>a
 			r=r-2*a
