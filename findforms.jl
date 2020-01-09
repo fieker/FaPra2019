@@ -1,8 +1,6 @@
-#function idealtoform(I::NfAbsOrdIdl)
-
 function findform(p::BigInt)
-	f=[2,2,2]
-		while gcd(f)!=1
+	g=[2,2,2]
+	while gcd(g)!=1
 		if rem(p,4)==1
 			d=p
 		else
@@ -21,8 +19,9 @@ function findform(p::BigInt)
 			a=fmpz(rand(1:y))
 		end
 		c=fmpz(div(y,fmpz(4)))
-		f=[a,b,c]
+		g=[a,b,c]
 	end
+	f=QuadForm(g[1],g[2],g[3])
 	return f
 end
 

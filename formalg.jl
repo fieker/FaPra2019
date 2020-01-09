@@ -1,3 +1,4 @@
+###################################
 mutable struct QuadForm
   a::fmpz
   b::fmpz
@@ -34,7 +35,7 @@ function formreduce(f::QuadForm)
 		x=a
 		a=c
 		c=x
-                q, r = divrem(b, 2*a)
+        q, r = divrem(b, 2*a)
 		if r>a
 			r=r-2*a
 			q=q+1
@@ -46,69 +47,8 @@ function formreduce(f::QuadForm)
 	end
 	return QuadForm(a, b, c)
 end
-
-
-function formreduce(f::Array{fmpz,1})
-	a=f[1]
-	b=f[2]
-	c=f[3]
-	#D=b*b-4*a*c
-	if b<=(-a) || a<b
-		r=Int64(b%(2*a))
-		iprintln("b=",b)
-		println("r=",r)
-		println("a=",a)
-		q=Int64((b-r)/(2*a))
-		if r>a
-			r=r-2*a
-			q=q+1
-		end
-		c=c-((b+r)*q)/2
-		b=r
-	end
-	if a>c
-		b=-b 
-		x=a
-		a=c
-		c=x
-		println("b=",b)
-		println("a=",a)
-		r=Int64(b%(2*a))
-		println("r=",r)
-		q=Int64((b-r)/(2*a))
-		if r>a
-			r=r-2*a
-			q=q+1
-		end
-		c=c-((b+r)*q)/2
-		b=r
-	elseif a==c && b<0
-		b=-b
-	end
-	return [a;b;c]
-end
 #|b|<=a<=c,c>0 if a=|b| or a=c then b>0
-
-#function testformreduce()
-#	a=rand(1:1000)	
-#	c=rand(-100:100)
-#	d=rand(1:1000)
-#	e=4*a*c-d
-#	while e<0
-#		d=rand(1:1000)
-#		e=4*a*c-d	
-#	end
-#	b=Int64(floor(sqrt(e)))
-#	f=[a;b;c]
-#	[x;y;z]=formreduce(f)
-#	i=((-a)<=b || b<=a) && a<=c
-#	j=true
-#	if a==-b || a==b || a==c
-#		j=b>0
-#	end
-#	return i&&j
-#end 
-
+ 
 function compose(f::Array{Int64,1},g::Array{Int64,1})
 	a1=f[1]
 	b1=f[2]
@@ -146,15 +86,14 @@ function compose(f::Array{Int64,1},g::Array{Int64,1})
 	return formreduce([a3;b3;c3])
 end
 
-function parteucl(a::Int64,b::Int64,L::Int64)
+function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	v=0
 	d=a
 	v2=1
 	v3=b
 	z=0
 	while abs(v3)>L
-		t3=d%v3
-		q=Int64((d-t3)/v3)
+		q, t3 =divrem(d,v3)
 		t2=v-q*v2
 		v=v2
 		d=v3
@@ -165,8 +104,8 @@ function parteucl(a::Int64,b::Int64,L::Int64)
 	if z%2==0
 		v2=-v2
 		v3=-v3
+		return (z,d)
 	end
-	return (z,d)
 end
 
 function nudupl(f::Array{Int64,1})	
