@@ -34,8 +34,6 @@ function formreduce(f::QuadForm)
 		x=a
 		a=c
 		c=x
-		println("a=",a)
-		println("b=",b)
         q, r = divrem(b, 2*a)
 		if r>a
 			r=r-2*a

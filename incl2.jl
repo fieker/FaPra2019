@@ -18,3 +18,4 @@ end
 
 include("findforms.jl")
 include("formalg.jl")
+include("isomorphism.jl")
