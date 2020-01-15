@@ -160,7 +160,8 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 	a2=f2.a
 	b2=f2.b
 	c2=f2.c
-	D=b1^2-4*a1*c1#discriminant?
+	D=-Hecke.discriminant(f1)
+	print(D)
 	L=root(divexact(D,4),4)
 	s=divexact(b1+b2,2)
 	n=b2-s
@@ -216,14 +217,14 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		f3=QuadForm(a3,b3,c3)	
 		f1=i
 		f2=h
-		return f3
+		return fromreduce(f3)
 	end
 	b=divexact((a2*d+n*v),a1)
 	Q1=b*v3
 	Q2=Q1+n
 	f=divexact(Q2,d)
 	e=divexact((s*d+c2*v),a1)
-	Q3=e*v2
+	Q3=e*v2#v2 not defined
 	Q4=Q3-s
 	g=divexact(Q4,v)
 	if d1>1
