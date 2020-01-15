@@ -33,14 +33,13 @@ decrypts C with the public key B of the transmitter and the private key a of the
 function elgamalA(C::NfAbsOrdIdl,B::NfAbsOrdIdl,a::fmpz)
 	M=C*(Hecke.power_class(B,fmpz(-a)))
 	#println("Nachricht entschlüsselt")
-	
 	return Hecke.reduce_ideal(M)
 end
 
 @doc Markdown.doc"""
 decode(M::NfAbsOrdIdl) -> BigInt
 
-decodes the decryted ideal
+decodes the decrypted ideal
 """
 function decode(M::NfAbsOrdIdl)
 	m=divrem(M.gen_one,10^8)[1]

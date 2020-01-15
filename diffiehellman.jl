@@ -28,6 +28,7 @@ function diffiehellmanA(P::NfAbsOrdIdl)
 		#println("nicht-trivialität geprüft")
 		a=abs(rand(10000000:fmpz(10)^60))
 		A=Hecke.power_class(P,fmpz(a))
+		count+=1
 		#println("Schlüssel berechnet")
 	end
 	#println("finaler schlüssel")
