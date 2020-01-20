@@ -1,22 +1,5 @@
-###################################
-#julia> f
-#my first form: <5, 5, 1>
-
-#julia> g
-#my first form: <1, -1, -1>
-
-#julia> nucomp(f,g)
-#my first form: <5, -1, 0>
-
-#julia> formreduce(ans)
-#ERROR: DivideError: integer division error
-#Stacktrace:
-# [1] divrem at /users/cip/users/kaiserk/.julia/packages/Nemo/qzx0m/src/flint/fmpz.jl:491 [inlined]
-# [2] formreduce(::QuadForm) at /users/cip/users/kaiserk/FaPra2019/formalg.jl:20
-# [3] top-level scope at none:0
-
 function formreduce(f::QuadForm)
-	#D=b*b-4*a*c
+	#D=b^2-4*a*c
         a = f.a
         b = f.b
         c = f.c
@@ -29,7 +12,7 @@ function formreduce(f::QuadForm)
 		c=c-divexact((b+r)*q, 2)
 		b=r
 	end
-	if a>c
+	while a>c
 		b=-b 
 		x=a
 		a=c
@@ -41,13 +24,41 @@ function formreduce(f::QuadForm)
 		end
 		c=c-divexact((b+r)*q, 2)
 		b=r
-	elseif a==c && b<0
+	end
+	if a==c && b<0
 		b=-b
 	end
 	return QuadForm(a, b, c)
 end
+
 #|b|<=a<=c,c>0 if a=|b| or a=c then b>0
- 
+function testmyformreduce(f::QuadForm)
+	if Hecke.discriminant(f)<0 && f.a>0
+		g=formreduce(f)
+		a=g.a
+		b=g.b
+		c=g.c
+		x=abs(b)<=a && a<=c
+		if a==abs(b) || a==c
+			x= x && b>0
+		end
+		return x
+	else
+		println("falscher input")
+	end
+end
+#julia> J=findnonprincipal(BigInt(5),BigInt(50))
+#<67, sqrt(-5)-14>
+#Norm: 67
+#Minimum: 67
+#two normal wrt: 67
+#julia> g=idealtoform(J,BigInt(5))
+#my first form: <67, 28, 3>
+#julia> testmyformreduce(g)
+#false
+
+
+#wird wahrscheinlich nicht benötigt#############################################
 function compose(f::Array{Int64,1},g::Array{Int64,1})
 	a1=f[1]
 	b1=f[2]
@@ -84,6 +95,7 @@ function compose(f::Array{Int64,1},g::Array{Int64,1})
 	c3=(c2*d1+r*(b2+v2*r))/v1
 	return formreduce([a3;b3;c3])
 end
+################################################################################
 
 function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	v=0
@@ -103,16 +115,17 @@ function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	if z%2==0
 		v2=-v2
 		v3=-v3
-		return (z,d,v3)
 	end
+	return (z,d,v2,v3)
 end
 
+################################################################################
 function nudupl(f::QuadForm)	
 	a=f.a
 	b=f.b
 	c=f.c
-	D=b^2-4*a*c
-	L=fmpz(floor((D/4)^(1/4)))
+	D=abs(Hecke.discriminant(f))
+	L=root(divexact(D,4),4)
 	(d1,u,v)=gcdx(b,a)
 	A=divexact(a,d1)
 	B=divexact(b,d1)
@@ -121,7 +134,7 @@ function nudupl(f::QuadForm)
 	if C1<C
 		C=-C1
 	end
-	(z,d)=parteucl(A,C,L)
+	(z,d,v2,v3)=parteucl(A,C,L)
 	if z==0
 		g=divexact((B*v3+c),d)
 		a2=d^2
@@ -145,6 +158,7 @@ function nudupl(f::QuadForm)
 	c2=c2+g*v2
 	return formreduce(QuadForm(a2,b2,c2))
 end
+################################################################################
 
 function nucomp(f1::QuadForm,f2::QuadForm)
 	i=f1
@@ -160,12 +174,11 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 	a2=f2.a
 	b2=f2.b
 	c2=f2.c
-	D=-Hecke.discriminant(f1)
-	print(D)
+	D=abs(Hecke.discriminant(f1))
 	L=root(divexact(D,4),4)
 	s=divexact(b1+b2,2)
 	n=b2-s
-	(d,u,v)=gcdx(a1,a2)
+	(d,u,v)=gcdx(a1,a2)#u=0 | v=0 ??
 	if d==1
 		A=-u*n
 		d1=d
@@ -174,7 +187,10 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		if A1<A
 			A=-A1
 		end
-		(z,d,v3)=parteucl(a1,A,L)
+		println("a1=",a1)
+		println("A=",A)
+		println("L=",L)
+		(z,d,v2,v3)=parteucl(a1,A,L)
 	elseif s%d==0
 		A=-u*n
 		d1=d
@@ -186,7 +202,7 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		if A1<A
 			A=-A1
 		end
-		(z,d,v3)=parteucl(a1,A,L)
+		(z,d,v2,v3)=parteucl(a1,A,L)
 	else
 		(d1,u1,v1)=gcdx(s,d) 
 		if d1>1
@@ -204,10 +220,10 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		if A1<A
 			A=-A1
 		end
-		(z,d,v3)=parteucl(a1,A,L)
+		(z,d,v2,v3)=parteucl(a1,A,L)
 	end
 	if z==0
-		Q1=a2*v3#v3 not defined
+		Q1=a2*v3
 		Q2=Q1+n
 		f=div(Q2,d)
 		g=div((v3*s+c2),d)
@@ -224,8 +240,10 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 	Q2=Q1+n
 	f=divexact(Q2,d)
 	e=divexact((s*d+c2*v),a1)
-	Q3=e*v2#v2 not defi: ned
+	Q3=e*v2
 	Q4=Q3-s
+	println("Q4=",Q4)
+	println("v=",v)
 	g=divexact(Q4,v)
 	if d1>1
 		v2=d1*v2
@@ -241,9 +259,12 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 end	
 	
 function formpowmod(f::QuadForm,n::fmpz)
-	g=f
-	for i=1:n
-		g=nucomp(g,f)
+	if n==1
+		g=f
+	elseif n%2==0
+		g=nudupl(formpowmod(f,divexact(n,fmpz(2))))
+	else
+		g=nucomp(nudupl(formpowmod(f,divexact(n,fmpz(2)))),f)
 	end
 	return g
 end
