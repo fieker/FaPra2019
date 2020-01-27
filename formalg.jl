@@ -119,7 +119,6 @@ function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	return (z,d,v2,v3)
 end
 
-################################################################################
 function nudupl(f::QuadForm)	
 	a=f.a
 	b=f.b
@@ -158,7 +157,6 @@ function nudupl(f::QuadForm)
 	c2=c2+g*v2
 	return formreduce(QuadForm(a2,b2,c2))
 end
-################################################################################
 
 function nucomp(f1::QuadForm,f2::QuadForm)
 	i=f1
