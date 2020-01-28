@@ -18,10 +18,16 @@ function idealtoform(I::NfOrdIdl,p::BigInt)
 	b=representation_matrix(A[2])[1]
 	c=representation_matrix(A[2])[3]
 	d=-p
+	println("a=",a)
+	println("b=",b)
+	println("c=",c)
 	n=norm(I)
-	f1=a^2//n
-	f2=2*a*b//n
-	f3=(b^2-c^2*d)//n
+	f1=divexact(a^2,n)
+	f2=divexact(2*a*b,n)
+	f3=divexact((b^2-c^2*d),n)
+	println("f1=",f1)
+	println("f2=",f2)
+	println("f3=",f3)
 	f=QuadForm(f1,f2,f3)
 	return f
 end		
@@ -72,3 +78,39 @@ function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
 	end
 	return A
 end
+
+function iscorrectlyordered2(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
+	k,a=quadratic_field(-p)
+	w1=A[1]
+	w2=A[2]
+	a=representation_matrix(w1)[1]
+	c=representation_matrix(w2)[3]
+	return (a*c)>0
+end	
+
+function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
+	A=basis(I)
+	if iscorrectlyordered(A,p)==false
+		A[1]=-A[1]
+		A[2]=-A[2]
+	end
+	return A
+end
+
+function coefficients(x::nf_elem,p::BigInt)
+	k,a=quadratic_field(-p)
+	y=x
+	z=x
+	i=1
+	while isrational(y)==false && isrational(z)==false
+		y=y+i*a
+		z=z-i*a
+		i+=1
+	end
+	if isrational(y)
+		return (y,-i)
+	else
+		return (z,i)
+	end
+end
+		

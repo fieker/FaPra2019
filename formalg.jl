@@ -231,7 +231,7 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		f3=QuadForm(a3,b3,c3)	
 		f1=i
 		f2=h
-		return fromreduce(f3)
+		return f3#######
 	end
 	b=divexact((a2*d+n*v),a1)
 	Q1=b*v3
