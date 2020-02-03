@@ -1,12 +1,17 @@
-function coefficientsz(x::NfAbsOrdElem{AnticNumberField,nf_elem},p::BigInt)
+function coefficients(x::NfAbsOrdElem{AnticNumberField,nf_elem},p::BigInt)
+        return coeffs(nf(parent(x))(x))
 	k,d=quadratic_field(-p)
+        k = parse_ca
 	a=trace(x)//2
 	b=trace(((2*x-trace(x))*d//(2*d^2)))//2#
 	return a,b
 end
 
-function coefficientsq(x::nf_elem,p::BigInt)
-	k,d=quadratic_field(-p)
+function coefficients(x::nf_elem,p::BigInt)
+        return coeffs(x)
+        k = parent(x)
+        gen(k)
+        p = -defining_polynomial(k)(0)
 	a=divexact(trace(x),2)
 	b=divexact(x-a,d)
 	return a,b
@@ -22,6 +27,8 @@ function conjugationz(x::NfAbsOrdElem{AnticNumberField,nf_elem},p::BigInt)
 end
 
 function conjugationq(x::nf_elem,p::BigInt)
+        c = coeffs(x)
+        return parent(x)([c[1], -c[2]])
 	k,d=quadratic_field(-p)
 	max_order1(p)
 	zk=maximal_order(k)
@@ -30,7 +37,7 @@ function conjugationq(x::nf_elem,p::BigInt)
 	return y
 end
 
-function iscorrectlyordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
+function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
 	k,a=quadratic_field(-p)
 	w1=A[1]
 	w2=A[2]
@@ -95,8 +102,8 @@ function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
 	#println("b=",b)
 	#println("c=",c)
 	n=norm(I)
-	f1=fmpz(BigFloat(divexact(a^2,n)))#
-	f2=fmpz(BigFloat(divexact(-s*2*a*b,n)))#
+	f1=numerator(divexact(a^2,n))#
+	f2=FlintZZ(divexact(-s*2*a*b,n))#
 	f3=fmpz(BigFloat(divexact((b^2-c^2*d),n)))#
 	#println("f1=",f1)
 	#println("f2=",f2)
