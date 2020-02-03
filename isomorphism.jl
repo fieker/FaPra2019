@@ -1,7 +1,7 @@
 function coefficientsz(x::NfAbsOrdElem{AnticNumberField,nf_elem},p::BigInt)
 	k,d=quadratic_field(-p)
 	a=trace(x)//2
-	b=((2*x-trace(x))*d//(2*d^2))
+	b=trace(((2*x-trace(x))*d//(2*d^2)))//2#
 	return a,b
 end
 
@@ -85,22 +85,25 @@ function formtoideal(f::QuadForm)
 	return I
 end
 
-function idealtoform(I::NfOrdIdl,p::BigInt)
+function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
 	A=correctlyorderedbasis(I,p)
 	a=coefficientsz(A[1],p)[1]
 	b=coefficientsz(A[2],p)[1]
-	#c=coefficientsz(A[2],p)[2]
+	c=coefficientsz(A[2],p)[2]
 	d=-p
-	println("a=",a)
-	println("b=",b)
+	#println("a=",a)
+	#println("b=",b)
 	#println("c=",c)
 	n=norm(I)
-	f1=divexact(a^2,n)
-	f2=divexact(2*a*b,n)
-	f3=divexact((b^2-c^2*d),n)
-	println("f1=",f1)
-	println("f2=",f2)
-	println("f3=",f3)
-	f=QuadForm(f1,f2,f3)
+	f1=fmpz(BigFloat(divexact(a^2,n)))#
+	f2=fmpz(BigFloat(divexact(-s*2*a*b,n)))#
+	f3=fmpz(BigFloat(divexact((b^2-c^2*d),n)))#
+	#println("f1=",f1)
+	#println("f2=",f2)
+	#println("f3=",f3)
+	#println("tf1=",typeof(f1))
+	#println("tf2=",typeof(f2))
+	#println("tf3=",typeof(f3))
+	f=QuadForm(s*f1,s*f2,s*f3)
 	return f
 end

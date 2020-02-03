@@ -185,9 +185,9 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		if A1<A
 			A=-A1
 		end
-		println("a1=",a1)
-		println("A=",A)
-		println("L=",L)
+		#println("a1=",a1)
+		#println("A=",A)
+		#println("L=",L)
 		(z,d,v2,v3)=parteucl(a1,A,L)
 	elseif s%d==0
 		A=-u*n
@@ -231,7 +231,7 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		f3=QuadForm(a3,b3,c3)	
 		f1=i
 		f2=h
-		return f3#######
+		return formreduce(f3)
 	end
 	b=divexact((a2*d+n*v),a1)
 	Q1=b*v3
@@ -240,8 +240,8 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 	e=divexact((s*d+c2*v),a1)
 	Q3=e*v2
 	Q4=Q3-s
-	println("Q4=",Q4)
-	println("v=",v)
+	#println("Q4=",Q4)
+	#println("v=",v)
 	g=divexact(Q4,v)
 	if d1>1
 		v2=d1*v2
@@ -260,9 +260,9 @@ function formpowmod(f::QuadForm,n::fmpz)
 	if n==1
 		g=f
 	elseif n%2==0
-		g=nudupl(formpowmod(f,divexact(n,fmpz(2))))
+		g=nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2)))))
 	else
-		g=nucomp(nudupl(formpowmod(f,divexact(n,fmpz(2)))),f)
+		g=nucomp(nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2))))),f)
 	end
 	return g
 end

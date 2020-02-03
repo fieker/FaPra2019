@@ -17,7 +17,7 @@ function Hecke.discriminant(f::QuadForm)
   return f.b^2 - 4*f.a*f.c
 end
 function Base.show(io::IO, f::QuadForm)
-  print(io, "my first form: <$(f.a), $(f.b), $(f.c)>")
+  print(io, "<$(f.a), $(f.b), $(f.c)>")
 end
 include("findforms.jl")
 include("formalg.jl")
