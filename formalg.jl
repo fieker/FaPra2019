@@ -17,8 +17,8 @@ function formreduce(f::QuadForm)
 		x=a
 		a=c
 		c=x
-        q, r = divrem(b, 2*a)
-		if r>a
+        q, r = divrem(BigInt(b), BigInt(2*a))
+		if r>BigInt(a)
 			r=r-2*a
 			q=q+1
 		end
@@ -262,7 +262,30 @@ function formpowmod(f::QuadForm,n::fmpz)
 	elseif n%2==0
 		g=nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2)))))
 	else
-		g=nucomp(nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2))))),f)
+		g=nucomp(nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2))))),formreduce(f))
 	end
 	return g
+end
+
+function formpowmod2(f::QuadForm,n::fmpz)
+	if n==1
+		g=formreduce(f)
+	elseif n%2==0
+		g=nudupl(formpowmod(f,divexact(n,fmpz(2))))
+	else
+		g=nucomp(nudupl(formpowmod(f,divexact(n,fmpz(2)))),formreduce(f))
+	end
+	return g
+end
+
+function testformpowmod(f::QuadForm,n::Int128)
+	i=0
+	while i<=n
+		if formpowmod(f,fmpz(i))!=formpowmod2(f,fmpz(i))
+			return i
+		else
+			i+=1
+		end
+	end
+	return true
 end
