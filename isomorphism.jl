@@ -1,66 +1,65 @@
-function coefficients(x::NfAbsOrdElem{AnticNumberField,nf_elem},p::BigInt)
-        return coeffs(nf(parent(x))(x))
-	k,d=quadratic_field(-p)
-        k = parse_ca
-	a=trace(x)//2
-	b=trace(((2*x-trace(x))*d//(2*d^2)))//2#
-	return a,b
+function sign1(x::fmpq)
+	return sign(numerator(x))
 end
 
-function coefficients(x::nf_elem,p::BigInt)
-        return coeffs(x)
-        k = parent(x)
-        gen(k)
-        p = -defining_polynomial(k)(0)
-	a=divexact(trace(x),2)
-	b=divexact(x-a,d)
-	return a,b
+function sign1(x::fmpz)
+	return sign(x)
 end
 
-function conjugationz(x::NfAbsOrdElem{AnticNumberField,nf_elem},p::BigInt)
-	k,d=quadratic_field(-p)
-	max_order1(p)
-	zk=maximal_order(k)
-	a,b=coefficientsz(x,p)
-	y=a-b*d
-	return y
+function coeffs(nf_elem)
+        return coeff(x,0),coeff(x,1)
 end
 
-function conjugationq(x::nf_elem,p::BigInt)
-        c = coeffs(x)
-        return parent(x)([c[1], -c[2]])
-	k,d=quadratic_field(-p)
-	max_order1(p)
-	zk=maximal_order(k)
-	a,b=coefficientsq(x,p)
-	y=zk(a-b*d)
-	return y
+function coeffs(x::NfAbsOrdElem{AnticNumberField,nf_elem})
+        return coeff(nf(parent(x))(x),0),coeff(nf(parent(x))(x),1)
 end
+
+function conjugation(x::NfAbsOrdElem{AnticNumberField,nf_elem})
+	c = coeffs(x)
+    return parent(x)([c[1], -c[2]])
+end
+
+function conjugation(x::nf_elem)
+	c = coeffs(x)
+    return parent(x)([c[1], -c[2]])
+end
+
+#function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
+#	w1=A[1]
+#	w2=A[2]
+#	return (coeffs((w2*conjugation(w1,p)-w1*conjugation(w2,p))//a)[1])>0
+#end
 
 function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
-	k,a=quadratic_field(-p)
 	w1=A[1]
 	w2=A[2]
-	return (coefficientsq((w2*conjugationz(w1,p)-w1*conjugationz(w2,p))//a,p)[1])>0
+	a=coeffs(w1)[1]
+	c=coeffs(w2)[1]
+	return sign1(a)==sign1(c),sign1(a)
 end
 
-function iscorrectlyordered2(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
-	k,a=quadratic_field(-p)
-	w1=A[1]
-	w2=A[2]
-	a=coefficientsz(w1,p)[1]
-	c=coefficientsz(w2,p)[1]
-	return (a*c)>0
+function iscorrectly_ordered(A::fmpz_mat)
+	a=A[1]
+	c=A[4]
+	return sign1(a)==sign1(c),sign1(a)
 end
 	
 function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
 	A=basis(I)
-	while iscorrectlyordered(A,p)==false
-		A[2]+=A[1]
+	if iscorrectly_ordered(A,p)[1]==false
+		A[2]=-1*A[2]
 	end
 	return A
 end
-		
+	
+function correctlyorderedbasis(A::fmpz_mat)
+	while iscorrectly_ordered(A)[1]==false
+		A[2]=-1*A[2]
+		A[4]=-1*A[4]
+	end
+	return A
+end
+	
 function fundamental(D::fmpz)
 	if mod(D,4)==0
 		m=divexact(D,4)
@@ -94,23 +93,35 @@ end
 
 function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
 	A=correctlyorderedbasis(I,p)
-	a=coefficientsz(A[1],p)[1]
-	b=coefficientsz(A[2],p)[1]
-	c=coefficientsz(A[2],p)[2]
+	a=coeffs(A[1])[1]
+	b=coeffs(A[2])[1]
+	c=coeffs(A[2])[2]
 	d=-p
-	#println("a=",a)
-	#println("b=",b)
-	#println("c=",c)
 	n=norm(I)
-	f1=numerator(divexact(a^2,n))#
-	f2=FlintZZ(divexact(-s*2*a*b,n))#
-	f3=fmpz(BigFloat(divexact((b^2-c^2*d),n)))#
-	#println("f1=",f1)
-	#println("f2=",f2)
-	#println("f3=",f3)
-	#println("tf1=",typeof(f1))
-	#println("tf2=",typeof(f2))
-	#println("tf3=",typeof(f3))
+	f1=FlintZZ(divexact(a^2,n))
+	f2=FlintZZ(divexact(-s*2*a*b,n))
+	f3=FlintZZ(divexact((b^2-c^2*d),n))
 	f=QuadForm(s*f1,s*f2,s*f3)
 	return f
 end
+
+function formtobasis(f::QuadForm)
+	a=f.a
+	b=f.b
+	c=f.c
+	A=[a 0; FlintZZ(-b//2) FlintZZ(1//2)]
+	return A
+end
+
+function basistoform(A::fmpz_mat,s::Int64,d::fmpz)
+	A=correctlyorderedbasis(A)
+	a=A[1]
+	b=A[2]
+	c=A[4]
+	n=a#??????????????
+	f1=a
+	f2=FlintZZ(divexact(-s*2*a*b,n))
+	f3=FlintZZ(divexact((b^2-c^2*d),n))
+	f=QuadForm(s*f1,s*f2,s*f3)
+end
+	

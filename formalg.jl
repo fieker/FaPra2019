@@ -231,7 +231,7 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		f3=QuadForm(a3,b3,c3)	
 		f1=i
 		f2=h
-		return formreduce(f3)
+		return f3
 	end
 	b=divexact((a2*d+n*v),a1)
 	Q1=b*v3
@@ -258,7 +258,7 @@ end
 	
 function formpowmod(f::QuadForm,n::fmpz)
 	if n==1
-		g=f
+		g=formreduce(f)
 	elseif n%2==0
 		g=nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2)))))
 	else
