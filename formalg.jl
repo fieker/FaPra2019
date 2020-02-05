@@ -17,6 +17,7 @@ function formreduce(f::QuadForm)
 		x=a
 		a=c
 		c=x
+		println("a=",a)
         q, r = divrem(BigInt(b), BigInt(2*a))
 		if r>BigInt(a)
 			r=r-2*a
@@ -257,9 +258,11 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 end	
 
 function formpowmod(f::QuadForm,n::fmpz)
-	n=abs(n)
 	s=sign(n)
-	if n==1
+	n=abs(n)
+	if n==0
+		g=basistoform(fmpz[1 0;0 1],fundamental(Hecke.discriminant(f)))
+	elseif n==1
 		g=formreduce(f)
 	elseif n%2==0
 		g=nudupl(formpowmod(f,divexact(n,fmpz(2))))
