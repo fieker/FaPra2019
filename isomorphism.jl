@@ -38,7 +38,7 @@ function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},
 	return sign1(a)==sign1(c),sign1(a)
 end
 
-function iscorrectly_ordered(A::fmpz_mat)
+function iscorrectly_ordered(A::Array{fmpz,2})
 	a=A[1]
 	c=A[4]
 	return sign1(a)==sign1(c),sign1(a)
@@ -52,7 +52,7 @@ function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
 	return A
 end
 	
-function correctlyorderedbasis(A::fmpz_mat)
+function correctlyorderedbasis(A::Array{fmpz,2})
 	while iscorrectly_ordered(A)[1]==false
 		A[2]=-1*A[2]
 		A[4]=-1*A[4]
@@ -96,6 +96,9 @@ function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
 	a=coeffs(A[1])[1]
 	b=coeffs(A[2])[1]
 	c=coeffs(A[2])[2]
+	println("a=",a)
+	println("b=",b)
+	println("c=",c)
 	d=-p
 	n=norm(I)
 	f1=FlintZZ(divexact(a^2,n))
@@ -109,19 +112,25 @@ function formtobasis(f::QuadForm)
 	a=f.a
 	b=f.b
 	c=f.c
-	A=[a 0; FlintZZ(-b//2) FlintZZ(1//2)]
+	println("a=",a)
+	println("b=",b,typeof(b))
+	println("c=",c)
+	A=[2*a 0;-b 1]#??????????????
 	return A
 end
 
-function basistoform(A::fmpz_mat,s::Int64,d::fmpz)
+function basistoform(A::Array{fmpz,2},d::fmpz)
 	A=correctlyorderedbasis(A)
 	a=A[1]
 	b=A[2]
 	c=A[4]
-	n=a#??????????????
-	f1=a
-	f2=FlintZZ(divexact(-s*2*a*b,n))
-	f3=FlintZZ(divexact((b^2-c^2*d),n))
-	f=QuadForm(s*f1,s*f2,s*f3)
+	println("a=",a)
+	println("b=",b)
+	println("c=",c)
+	n=4#??????????????
+	f1=numerator(divexact(a^2,n))
+	f2=numerator(divexact(-2*a*b,n))
+	f3=numerator(divexact((b^2-c^2*d),n))
+	f=QuadForm(f1,f2,f3)
 end
 	

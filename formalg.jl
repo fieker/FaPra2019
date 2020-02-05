@@ -255,19 +255,10 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 	f2=h
 	return formreduce(f3)
 end	
-	
-function formpowmod(f::QuadForm,n::fmpz)
-	if n==1
-		g=formreduce(f)
-	elseif n%2==0
-		g=nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2)))))
-	else
-		g=nucomp(nudupl(formreduce(formpowmod(f,divexact(n,fmpz(2))))),formreduce(f))
-	end
-	return g
-end
 
-function formpowmod2(f::QuadForm,n::fmpz)
+function formpowmod(f::QuadForm,n::fmpz)
+	n=abs(n)
+	s=sign(n)
 	if n==1
 		g=formreduce(f)
 	elseif n%2==0
@@ -275,17 +266,10 @@ function formpowmod2(f::QuadForm,n::fmpz)
 	else
 		g=nucomp(nudupl(formpowmod(f,divexact(n,fmpz(2)))),formreduce(f))
 	end
-	return g
-end
-
-function testformpowmod(f::QuadForm,n::Int128)
-	i=0
-	while i<=n
-		if formpowmod(f,fmpz(i))!=formpowmod2(f,fmpz(i))
-			return i
-		else
-			i+=1
-		end
+	if s==-1
+		A=formtobasis(g)
+		A[2]=-A[2]
+		g=basistoform(A)
 	end
-	return true
+	return g
 end

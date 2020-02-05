@@ -31,26 +31,26 @@ function formelgamalB(M::NfAbsOrdIdl,A::NfAbsOrdIdl,P::NfAbsOrdIdl,p::BigInt)
 	return B,C
 end
 
-function testmyelgamalwithforms(m::BigInt)
-	println("m=",m)
+#function testmyelgamalwithforms(m::BigInt)
+#	println("m=",m)
 	#@time 
-	p,P=diffiehellman0(m)
-	println("p=",p)
-	println("P=",P)
+#	p,P=diffiehellman0(m)
+#	println("p=",p)
+#	println("P=",P)
 	#@time 
-	a,A=formdiffiehellmanA(P,p)
-	println("A=",A)
+#	a,A=formdiffiehellmanA(P,p)
+#	println("A=",A)
 	#@time 
-	M=encode(p,m)
-	println("M=",M)
+#	M=encode(p,m)
+#	println("M=",M)
 	#@time 
-	B,C=formelgamalB(M,A,P,p)
-	println("C=",C)
+#	B,C=formelgamalB(M,A,P,p)
+#	println("C=",C)
 	#@time 
-	Mneu=formelgamalA(C,B,a,p)
-	println("Mneu=",Mneu)
+#	Mneu=formelgamalA(C,B,a,p)
+#	println("Mneu=",Mneu)
 	#@time 
-	mneu=decode(Mneu)
-	println("mneu=",mneu)
-	return m==mneu
-end
+#	mneu=decode(Mneu)
+#	println("mneu=",mneu)
+#	return m==mneu
+#end

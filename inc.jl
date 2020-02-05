@@ -23,4 +23,4 @@ include("findforms.jl")
 include("formalg.jl")
 include("isomorphism.jl")
 include("elgamalwithforms.jl")
-
+include("kryptowithforms.jl")
