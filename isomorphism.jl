@@ -81,12 +81,16 @@ function formtoideal(f::QuadForm)
 	a=f.a
 	b=f.b
 	c=f.c
-	D=fundamental(Hecke.discriminant(f))
-	k,d=quadratic_field(D)
-	max_order1(BigInt(abs(D)))
+	D=Hecke.discriminant(f)
+	k,d=quadratic_field(fundamental(D))
+	max_order1(BigInt(abs(fundamental(D))))
 	zk=maximal_order(k)
 	w1=fmpz(a)
-	w2=zk((-b+d)//2)
+	if mod(D,4)==0
+		w2=zk((-b+2*d)//2)
+	else
+		w2=zk((-b+d)//2)
+	end
 	I=NfOrdIdl(w1,w2)
 	return I
 end
@@ -109,19 +113,21 @@ function formtobasis(f::QuadForm)
 	a=f.a
 	b=f.b
 	c=f.c
-	A=[2*a 0;-b 1]#??????????????
+	if mod(Hecke.discriminant(f),4)==0
+		A=[a 0;fmpz(numerator(-b//2)) 1]
+	else
+		A=[a 0;-b//2 1//2]
+	end
 	return A
 end
 
 function basistoform(A::Array{fmpz,2},d::fmpz)
 	A=correctlyorderedbasis(A)
-	a=A[1]
-	b=A[2]
-	c=A[4]
-	n=gcd(gcd(a^2,b^2-c^2*d),2*a*b)#richtig?
-	f1=numerator(divexact(a^2,n))
-	f2=numerator(divexact(-2*a*b,n))
-	f3=numerator(divexact((b^2-c^2*d),n))
+	p=A[1]
+	a=-A[2]
+	n=gcd(gcd(p^2,a^2-d),-2*a*p)#richtig?
+	f1=numerator(divexact(p^2,n))
+	f2=numerator(divexact(2*a*p,n))
+	f3=numerator(divexact((a^2-d),n))
 	f=QuadForm(f1,f2,f3)
 end
-	
