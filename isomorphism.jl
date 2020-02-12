@@ -124,8 +124,11 @@ end
 function basistoform(A::Array{fmpz,2},d::fmpz)
 	A=correctlyorderedbasis(A)
 	p=A[1]
+	#println("p=",p)
 	a=-A[2]
+	#println("a=",a)
 	n=gcd(gcd(p^2,a^2-d),-2*a*p)#richtig?
+	#println("n=",n)
 	f1=numerator(divexact(p^2,n))
 	f2=numerator(divexact(2*a*p,n))
 	f3=numerator(divexact((a^2-d),n))

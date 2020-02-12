@@ -1,13 +1,13 @@
 function diffiehellman0(m::fmpz)
-	d=rand(m*fmpz(10)^3:m*fmpz(10)^6)
+	d=rand(m*fmpz(10)^200:m*fmpz(10)^250)
 	while Hecke.isprime(d)==false || mod(-d,4)!=3
-		d=rand(1000:m*fmpz(10)^6)
+		d=rand(m*fmpz(10)^200:m*fmpz(10)^250)
 	end
 	return -d
 end
 
 function find(d::fmpz)
-	i=rand(1000:abs(d)*10)
+	i=rand(1:root(abs(d),2))
 	while Hecke.isprime(i)==false || jacobi(mod(d,i),i)!=1
 		i=rand(1:fmpz(abs(d))*10)
 	end
@@ -17,7 +17,7 @@ function find(d::fmpz)
 end
 
 function encode(m::fmpz,d::fmpz)
-	for i=m*fmpz(10)^8:(m*fmpz(10)^9-1)
+	for i=m*fmpz(10)^3:(root(abs(d),2))
 		if Hecke.isprime(i) && jacobi(mod(d,i),i)==1
 			M=[i 0;-lift(root(GF(i)(d),2)) 1]
 			return basistoform(M,d)
@@ -27,7 +27,7 @@ end
 
 function decode(M::QuadForm)
 	M=formtobasis(M)[1]
-	m=mod(M,10^9)
+	m=div(M,1000)
 	return m
 end
 
@@ -64,7 +64,7 @@ function elgamalB(b::fmpz,A::QuadForm,M::QuadForm)
 end
 
 function elgamalA(a::fmpz,B::QuadForm,C::QuadForm)
-	L=formpowmod(B,a)
+	L=formpowmod(B,-a)
 	#L=simplepower(B,a)
 	M=nucomp(L,C)
 	#M=simplecompose(L,C)
@@ -78,7 +78,7 @@ function testmyelgamalwithforms(m::fmpz)
 	#println("I=",I)
 	println(1)
 	M=encode(m,d)
-	#println("M=",M)
+	println("M=",M)
 	println(2)
 	a,A=diffiehellmanA(I,d)
 	#println("a=",a)
@@ -103,8 +103,6 @@ end
 function smalltest()
 	d=fmpz(-17)
 	println("d=",d)
-	m=fmpz(2)
-	println("m=",m)
 	I=fmpz[3 0;-lift(root(GF(3)(d),2)) 1]
 	I=basistoform(I,d)
 	println("I=",I)
@@ -135,25 +133,46 @@ function smalltest()
 	println("Mneu=",Mneu)
 	Mneu=positive_definite_form(formreduce(positive_definite_form(Mneu)))
 	println("Mneu=",Mneu)
-	mneu=mod(formtobasis(Mneu)[1],100)
+	return isequal(Mneu,M)
+end
+
+function smalltest2()
+	d=fmpz(-6101)
+	println("d=",d)
+	m=fmpz(3)
+	println("m=",m)
+	I=fmpz[5 0;-lift(root(GF(5)(d),2)) 1]
+	I=basistoform(I,d)
+	println("I=",I)
+	I=formreduce(I)
+	println("I=",I)
+	M=fmpz[37 0;-lift(root(GF(37)(d),2)) 1]
+	M=basistoform(M,d)
+	println("M=",M)
+	M=formreduce(M)
+	println("M=",M)
+	a=fmpz(7)
+	A=formpowmod(I,a)
+	#A=simplepower(I,a)
+	println("A=",A)
+	A=formreduce(A)
+	println("A=",A)
+	b=fmpz(9)
+	B=formpowmod(I,b)
+	#B=simplepower(I,b)
+	println("B=",B)
+	B=formreduce(B)
+	println("B=",B)
+	C=elgamalB(b,A,M)
+	println("C=",C)
+	C=formreduce(C)
+	println("C=",C)
+	Mneu=elgamalA(a,B,C)
+	println("Mneu=",Mneu)
+	Mneu=formreduce(Mneu)
+	println("Mneu=",Mneu)
+	mneu=div(formtobasis(Mneu)[1],10)
 	println("mneu=",mneu)
 	return m==mneu
 end
-
-#julia> smalltest()#mit nucomp, nudupl
-#d=-17
-#m=2
-#I=<3, 2, 6>
-#I=<3, 2, 6>
-#M=<13, 20, 9>
-#M=<2, 2, 9>
-#A=<-27, 36, -6>
-#A=<3, 6, -51>
-#B=<3, 0, 5>
-#B=<3, 0, 5>
-#C=<6, -2, -55>
-#C=<55, 112, 51>
-#Mneu=<165, 12, 112>
-#Mneu=<112, -12, 165>
-#true
 

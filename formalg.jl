@@ -21,7 +21,7 @@ function formreduce(f::QuadForm)
 		q, r = divrem(b, 2*a)
 		if r<0#??????????
 			q=q-1
-			r=r+2*a
+			r=r+abs(2*a)
 		end
 		if r>a
 			r=r-2*a
@@ -39,8 +39,8 @@ function formreduce(f::QuadForm)
 		c=x
         q, r = divrem(BigInt(b), BigInt(2*a))
 		if r<0
-			q=q-1
-			r=r+2*a
+			q=q-sign(2*a)
+			r=r+abs(2*a)
 		end
 		r=fmpz(r)
 		q=fmpz(q)
@@ -129,8 +129,19 @@ function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	v2=1
 	v3=b
 	z=0
-	while abs(v3)>L
+	while abs(v3)>L		
+		#println("v=",v)
+		#println("d=",d)
+		#println("v2=",v2)
+		#println("v3=",v3)
+		#println("z=",z)
 		q, t3 =divrem(d,v3)
+		if t3<0
+			t3=t3+abs(v3)
+			q=q-sign(v3)
+		end
+		#println("q=",q)
+		#println("t3=",t3)
 		t2=v-q*v2
 		v=v2
 		d=v3
@@ -138,11 +149,11 @@ function parteucl(a::fmpz,b::fmpz,L::fmpz)
 		v3=t3
 		z+=1
 	end
-	if mod(z,2)==1
+	if iseven(z)==false
 		v2=-v2
 		v3=-v3
 	end
-	return (z,d,v2,v3)
+	return (z,d,v2,v3,v)
 end
 
 function nudupl(f::QuadForm)
@@ -152,7 +163,7 @@ function nudupl(f::QuadForm)
 	c=f.c
 	D=abs(Hecke.discriminant(f))
 	L=root(divexact(D,4),4)#??
-	(d1,u,v)=gcdx(b,a)
+	(d1,u,v)=gcdx(b,a)#v wird nicht gebraucht
 	A=divexact(a,d1)
 	B=divexact(b,d1)
 	C=mod((-c*u),A)
@@ -160,7 +171,7 @@ function nudupl(f::QuadForm)
 	if C1<C
 		C=-C1
 	end
-	(z,d,v2,v3)=parteucl(A,C,L)
+	(z,d,v2,v3,v)=parteucl(A,C,L)
 	if z==0
 		g=divexact((B*v3+c),d)
 		a2=d^2
@@ -186,7 +197,12 @@ function nudupl(f::QuadForm)
 end
 
 function nucomp(f1::QuadForm,f2::QuadForm)
-	if isequal(f1,f2)
+	e=QuadForm(1,0,fundamental(Hecke.discriminant(f1)))
+	if isequal(f1,e)
+		return f2
+	elseif isequal(f2,e)
+		return f1
+	elseif isequal(f1,f2)
 		nudupl(f1)
 	else
 		f1=formreduce(f1)
@@ -204,13 +220,14 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		a2=f2.a
 		b2=f2.b
 		c2=f2.c
+		#println("c2=",c2)
 		D=abs(Hecke.discriminant(f1))
 		L=root(divexact(D,4),4)
 		s=divexact(b1+b2,2)
 		n=b2-s
 		#println("a1=",a1)
 		#println("a2=",a2)
-		(d,u,v)=gcdx(a2,a1)#?????????????
+		(d,u,v)=gcdx(a2,a1)#v wird nur in Fall3 gebraucht
 		#println("s=",s)
 		#println("n=",n)
 		#println("d=",d)
@@ -230,7 +247,7 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 			#println("A=",A)
 			#println("d1=",d1)
 			#println("A1=",A1)
-			(z,d,v2,v3)=parteucl(a1,A,L)
+			(z,d,v2,v3,v)=parteucl(a1,A,L)
 			#println("z=",z)
 			#println("d=",d)
 			#println("v2=",v2)
@@ -247,26 +264,39 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 			if A1<A
 				A=-A1
 			end
-			(z,d,v2,v3)=parteucl(a1,A,L)
+			(z,d,v2,v3,v)=parteucl(a1,A,L)
 		else
 			#println("3.Fall")
-			(d1,u1,v1)=gcdx(s,d) 
+			(d1,u1,v1)=gcdx(s,d)#v1 wird nicht gebraucht
+			#println("d1=",d1)
+			#println("v1=",v1)
+			#println("u1=",u1)
 			if d1>1
 				a1=divexact(a1,d1)
 				a2=divexact(a2,d1)
 				s=divexact(s,d1)
 				d=divexact(d,d1)
 			end
-			c1=mod(c1,d)
-			c2=mod(c2,d)
-			l=mod((-u1*(u*c1+v*c2)),d)
+			c_1=mod(c1,d)
+			c_2=mod(c2,d)
+			l=mod((-u1*(u*c_1+v*c_2)),d)
 			A=-u*divexact(n,d)+l*divexact(a1,d)
+			#println("A=",A)
 			A=mod(A,a1)
 			A1=a1-A
 			if A1<A
 				A=-A1
 			end
-			(z,d,v2,v3)=parteucl(a1,A,L)
+			#println("c1=",c1)
+			#println("c2=",c2)
+			#println("l=",l)
+			#println("A=",A)
+			#println("A1=",A1)
+			(z,d,v2,v3,v)=parteucl(a1,A,L)
+			#println("z=",z)
+			#println("d=",d)
+			#println("v2=",v2)
+			#println("v3=",v3)
 		end
 		if z==0
 			#println("special case")
@@ -274,6 +304,11 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 			Q2=Q1+n
 			f=divexact(Q2,d)
 			g=divexact((v3*s+c2),d)
+			#println("c2=",c2)
+			#println("s=",s)
+			#println("v3=",v3)
+			#println("d=",d)
+			#println("g=",g)
 			a3=d*a2
 			c3=v3*f+g*d1#Fehler in Buch?????
 			b3=2*Q1+b2
@@ -290,6 +325,11 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 			#println("b3=",b3)
 			return formreduce(f3)
 		end
+		#println("a2=",a2)
+		#println("d=",d)
+		#println("n=",n)
+		#println("v=",v)
+		#println("a1=",a1)
 		b=divexact((a2*d+n*v),a1)
 		Q1=b*v3
 		Q2=Q1+n
@@ -297,13 +337,19 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 		e=divexact((s*d+c2*v),a1)
 		Q3=e*v2
 		Q4=Q3-s
-		#println("Q4=",Q4)
-		#println("v=",v)
 		g=divexact(Q4,v)
 		if d1>1
 			v2=d1*v2
 			v=d1*v
 		end
+		#println("b=",b)
+		#println("Q1=",Q1)
+		#println("Q2=",Q2)
+		#println("f=",f)
+		#println("e=",e)
+		#println("Q3=",Q3)
+		#println("Q4=",Q4)
+		#println("g=2",g)
 		a3=d*b+e*v
 		c3=v3*f+g*v2
 		b3=Q1+Q2+d1*(Q3+Q4)
@@ -322,7 +368,7 @@ function formpowmod(f::QuadForm,n::fmpz)
 	elseif n==1
 		g=formreduce(f)
 		#println(g)
-	elseif n%2==0
+	elseif iseven(n)
 		g=nudupl(formpowmod(f,divexact(n,fmpz(2))))
 		#println(g)
 	else
@@ -337,6 +383,24 @@ function formpowmod(f::QuadForm,n::fmpz)
 	return g
 end
 
+function formpowmodbit(f::QuadForm,n::fmpz)
+	if n==0
+		g=basistoform(fmpz[1 0;0 1],fundamental(Hecke.discriminant(f)))
+	elseif n==1
+		g=formreduce(f)
+	else
+		x=#bits(n)
+		r=length(x)
+		g=f
+		for i=1::r
+			g=nudupl(g)
+			if x[r+1-1]
+				g=nucomp(f,g)
+			end
+		end
+	end
+end
+		
 function simplecompose(f1::QuadForm,f2::QuadForm)
 		D=Hecke.discriminant(f1)
 		a1=f1.a
@@ -368,7 +432,7 @@ function simplepower(f::QuadForm,n::fmpz)
 		g=basistoform(fmpz[1 0;0 1],fundamental(Hecke.discriminant(f)))
 	elseif n==1
 		g=formreduce(f)
-	elseif mod(n,2)==0
+	elseif iseven(n)
 		g=simplecompose(simplepower(f,divexact(n,2)),simplepower(f,divexact(n,2)))
 	else
 		h=simplecompose(simplepower(f,divexact(n,2)),simplepower(f,divexact(n,2)))
