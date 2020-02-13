@@ -1,23 +1,45 @@
+######
+@doc Markdown.doc"""
+diffiehellman0(m::fmpz) -> fmpz
+finds a random prime p>(2)^(nbits(fmpz(m))*2+100) with mod(-d,4)=3 
+"""
 function diffiehellman0(m::fmpz)
-	d=rand(m*fmpz(10)^200:m*fmpz(10)^250)
-	while Hecke.isprime(d)==false || mod(-d,4)!=3
-		d=rand(m*fmpz(10)^200:m*fmpz(10)^250)
+	i=BigInt(2)^(nbits(m)*2+100)
+	d=fmpz(nextprime(rand(i:i+10^10)))
+	while mod(-d,4)!=3
+		d=fmpz(nextprime(rand(i:i+10^10)))
 	end
+	push!(Hecke.big_primes,d)
 	return -d
 end
 
+@doc Markdown.doc"""
+find(d::fmpz) -> QuadForm
+
+returns a nontrivial reduced binary quadratic form with discriminant -d
+the corresponding ideal is nonprincipal
+"""
 function find(d::fmpz)
-	i=rand(1:root(abs(d),2))
-	while Hecke.isprime(i)==false || jacobi(mod(d,i),i)!=1
-		i=rand(1:fmpz(abs(d))*10)
+	count=0
+	println(count)
+	@time i=nextprime(BigInt(div(div(root(abs(d),2),4),1000)))
+	while @time Hecke.isprime(i)==false || @time jacobi(mod(BigInt(d),i),fmpz(i))!=1
+		i=nextprime(BigInt(div(div(root(abs(d),2),4),1000)))
+		count+=1
+		println(count)
 	end
+	i=fmpz(i)
 	I=[i 0;-lift(root(GF(i)(d),2)) 1]
-	#print(I)
 	return basistoform(I,d)
 end
 
+@doc Markdown.doc"""
+encode(m::fmpz,d::fmpz) -> QuadForm
+
+encodes Integer m to an binary quadratic form with discriminant -d
+"""
 function encode(m::fmpz,d::fmpz)
-	for i=m*fmpz(10)^3:(root(abs(d),2))
+	for i=m*fmpz(10)^3:fmpz(floor(BigFloat(root(abs(d),2))/4))
 		if Hecke.isprime(i) && jacobi(mod(d,i),i)==1
 			M=[i 0;-lift(root(GF(i)(d),2)) 1]
 			return basistoform(M,d)
@@ -25,80 +47,103 @@ function encode(m::fmpz,d::fmpz)
 	end
 end
 
+@doc Markdown.doc"""
+decode(M::QuadForm) -> fmpz
+
+decodes the decrypted binary quadratic form
+"""
 function decode(M::QuadForm)
 	M=formtobasis(M)[1]
 	m=div(M,1000)
 	return m
 end
 
+@doc Markdown.doc"""
+diffiehellmanA(I::QuadForm,d::fmpz) -> fmpz, QuadForm
+
+determines private and public key for the receiver 
+"""
 function diffiehellmanA(I::QuadForm,d::fmpz)
 	a=rand(1000:fmpz(10)^6)
-	A=formtobasis(formpowmod(I,fmpz(a)))
-	#A=formtobasis(simplepower(I,fmpz(a)))
-	while isone(A)############
+	A=formtobasis(formpowmodbit(I,fmpz(a)))
+	while isone(A)
 		a=rand(1000:fmpz(10)^6)
-		A=formtobasis(formpowmod(I,fmpz(a)))
-		#A=formtobasis(simplepower(I,fmpz(a)))
+		A=formtobasis(formpowmodbit(I,fmpz(a)))
 	end
-	#println("A=",A)
 	return a,basistoform(A,d)
 end
 
+@doc Markdown.doc"""
+diffiehellmanB(I::QuadForm,d::fmpz) -> fmpz, QuadForm
+
+determines private and public key for the transmitter
+"""
 function diffiehellmanB(I::QuadForm,d::fmpz)
 	b=rand(1000:fmpz(10)^6)
-	B=formtobasis(formpowmod(I,fmpz(b)))
+	B=formtobasis(formpowmodbit(I,fmpz(b)))
 	while isone(B)
 		b=rand(1000:fmpz(10)^6)
-		B=formtobasis(formpowmod(I,fmpz(b)))
-		#B=formtobasis(simplepower(I,fmpz(b)))
+		B=formtobasis(formpowmodbit(I,fmpz(b)))
 	end
 	return b,basistoform(B,d)
 end
 
+@doc Markdown.doc"""
+elgamalB(b::fmpz,A::QuadForm,M::QuadForm) -> QuadForm
+
+determines private key of the transmitter via I
+|
+encryts M with the public key A of the receiver 
+"""
 function elgamalB(b::fmpz,A::QuadForm,M::QuadForm)
-	K=formpowmod(A,b)
-	#K=simplepower(A,b)
+	K=formpowmodbit(A,b)
 	C=nucomp(K,M)
-	#C=simplecompose(K,M)
 	return C
 end
 
+@doc Markdown.doc"""
+elgamalA(a::fmpz,B::QuadForm,C::QuadForm) -> QuadForm
+
+decrypts C with the public key B of the transmitter and the private key a of the receiver
+"""
 function elgamalA(a::fmpz,B::QuadForm,C::QuadForm)
-	L=formpowmod(B,-a)
-	#L=simplepower(B,a)
+	L=formpowmodbit(B,-a)
 	M=nucomp(L,C)
-	#M=simplecompose(L,C)
 	return M
 end
 
 function testmyelgamalwithforms(m::fmpz)
 	d=diffiehellman0(m)
 	println("d=",d)
-	I=find(d)
+	@time I=find(d)
 	#println("I=",I)
-	println(1)
-	M=encode(m,d)
-	println("M=",M)
-	println(2)
-	a,A=diffiehellmanA(I,d)
+	#println(1)
+	@time M=encode(m,d)
+	#println("M=",M)
+	#println(2)
+	@time a,A=diffiehellmanA(I,d)
 	#println("a=",a)
 	#println("A=",A)
-	println(3)
-	b,B=diffiehellmanB(I,d)
+	#println(3)
+	@time b,B=diffiehellmanB(I,d)
 	#println("b=",b)
 	#println("B=",B)
-	println(4)
-	C=elgamalB(b,A,M)
+	#println(4)
+	@time C=elgamalB(b,A,M)
 	#println("C=",C)
-	println(5)
-	Mneu=elgamalA(a,B,C)
+	#println(5)
+	@time Mneu=elgamalA(a,B,C)
 	#println("Mneu=",Mneu)
-	println(6)
-	mneu=decode(Mneu)
-	println("mneu=",mneu)
-	println(7)
-	return isequal(M,Mneu)
+	#println(6)
+	@time mneu=decode(Mneu)
+	#println("mneu=",mneu)
+	#println(7)
+	return mneu=m
 end
+
+function timeofforms(m::fmpz)
+	@time testmyelgamalwithforms(m)
+end 
 
 function smalltest()
 	d=fmpz(-17)
@@ -115,13 +160,11 @@ function smalltest()
 	println("M=",M)
 	a=fmpz(7)
 	A=formpowmod(I,a)
-	#A=simplepower(I,a)
 	println("A=",A)
 	A=positive_definite_form(formreduce(positive_definite_form(A)))
 	println("A=",A)
 	b=fmpz(9)
 	B=formpowmod(I,b)
-	#B=simplepower(I,b)
 	println("B=",B)
 	B=positive_definite_form(formreduce(positive_definite_form(B)))
 	println("B=",B)
@@ -153,13 +196,11 @@ function smalltest2()
 	println("M=",M)
 	a=fmpz(7)
 	A=formpowmod(I,a)
-	#A=simplepower(I,a)
 	println("A=",A)
 	A=formreduce(A)
 	println("A=",A)
 	b=fmpz(9)
 	B=formpowmod(I,b)
-	#B=simplepower(I,b)
 	println("B=",B)
 	B=formreduce(B)
 	println("B=",B)
@@ -175,4 +216,3 @@ function smalltest2()
 	println("mneu=",mneu)
 	return m==mneu
 end
-

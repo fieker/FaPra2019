@@ -24,12 +24,13 @@ function conjugation(x::nf_elem)
     return parent(x)([c[1], -c[2]])
 end
 
-#function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
-#	w1=A[1]
-#	w2=A[2]
-#	return (coeffs((w2*conjugation(w1,p)-w1*conjugation(w2,p))//a)[1])>0
-#end
-
+@doc Markdown.doc"""
+iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt) -> Bool
+A=basis of an ideal over in O over Q[sqrt(-p)]
+w1=A[1]
+w2=A[2]
+(norm(w2*conj(w1)-w1*conj(w2))/sqrt(-p))>0??
+"""
 function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
 	w1=A[1]
 	w2=A[2]
@@ -38,12 +39,23 @@ function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},
 	return sign1(a)==sign1(c)
 end
 
+@doc Markdown.doc"""
+iscorrectly_ordered(A::Array{fmpz,2}) -> Bool
+A=basis of an ideal over in O over Q[sqrt(-p)]
+w1=A[1]
+w2=A[2]
+(norm(w2*conj(w1)-w1*conj(w2))/sqrt(-p))>0??
+"""
 function iscorrectly_ordered(A::Array{fmpz,2})
 	a=A[1]
 	c=A[4]
 	return sign1(a)==sign1(c)
 end
 	
+@doc Markdown.doc"""
+correctlyorderedbasis(I::NfOrdIdl,p::BigInt) -> NfAbsOrdElem{AnticNumberField,nf_elem},1}
+returns a correctly ordered basis of the ideal I
+"""
 function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
 	A=basis(I)
 	if iscorrectly_ordered(A,p)[1]==false
@@ -51,7 +63,11 @@ function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
 	end
 	return A
 end
-	
+
+@doc Markdown.doc"""
+correctlyorderedbasis(A::Array{fmpz,2}) -> NfAbsOrdElem{AnticNumberField,nf_elem},1}
+returns A in correctly order
+"""	
 function correctlyorderedbasis(A::Array{fmpz,2})
 	if iscorrectly_ordered(A)[1]==false
 		A[2]=-1*A[2]
@@ -59,7 +75,11 @@ function correctlyorderedbasis(A::Array{fmpz,2})
 	end
 	return A
 end
-	
+
+@doc Markdown.doc"""
+fundamental(D::fmpz) -> 
+returns the corresponding discriminant of a quadratic number field if D is a fundamental discriminant of a binary quadratic form
+"""	
 function fundamental(D::fmpz)
 	if mod(D,4)==0
 		m=divexact(D,4)
@@ -77,6 +97,10 @@ function fundamental(D::fmpz)
 	end
 end
 
+@doc Markdown.doc"""
+formtoideal(f::QuadForm)-> NfOrdIdl
+determines the corresponding ideal in O over Q[sqrt(-p)] where p is the fundamental discriminant of f
+"""
 function formtoideal(f::QuadForm)
 	a=f.a
 	b=f.b
@@ -95,6 +119,10 @@ function formtoideal(f::QuadForm)
 	return I
 end
 
+@doc Markdown.doc"""
+idealtoform(I::NfOrdIdl,p::BigInt,s::Int64) -> QuadForm
+determines the corresponding binary quadratic form with discriminant p or 4*p
+"""
 function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
 	A=correctlyorderedbasis(I,p)
 	a=coeffs(A[1])[1]
@@ -109,6 +137,10 @@ function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
 	return f
 end
 
+@doc Markdown.doc"""
+formtobasis(f::QuadForm) -> Array{fmpz,2}
+determines a basis of the corresponding ideal in O over Q[sqrt(-p)] where p is the fundamental discriminant
+"""
 function formtobasis(f::QuadForm)
 	a=f.a
 	b=f.b
@@ -121,14 +153,15 @@ function formtobasis(f::QuadForm)
 	return A
 end
 
+@doc Markdown.doc"""
+basistoform(A::Array{fmpz,2},d::fmpz)
+determines the corresponding binary quadratic form with discriminant d or 4*d
+"""
 function basistoform(A::Array{fmpz,2},d::fmpz)
 	A=correctlyorderedbasis(A)
 	p=A[1]
-	#println("p=",p)
 	a=-A[2]
-	#println("a=",a)
 	n=gcd(gcd(p^2,a^2-d),-2*a*p)#richtig?
-	#println("n=",n)
 	f1=numerator(divexact(p^2,n))
 	f2=numerator(divexact(2*a*p,n))
 	f3=numerator(divexact((a^2-d),n))

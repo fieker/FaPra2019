@@ -19,8 +19,6 @@ end
 function Base.show(io::IO, f::QuadForm)
   print(io, "<$(f.a), $(f.b), $(f.c)>")
 end
-include("findforms.jl")
 include("formalg.jl")
 include("isomorphism.jl")
-include("elgamalwithforms.jl")
 include("kryptowithforms.jl")

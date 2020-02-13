@@ -8,9 +8,11 @@ function findnonprincipal(p::BigInt,s::BigInt)
 	k,a=quadratic_field(-p)
 	#println(k)
 	#if s%10^2!=0
-		@time max_order1(p)
+		#@time 
+	max_order1(p)
 	#end
-	@time zk=maximal_order(k)
+	#@time 
+	zk=maximal_order(k)
 	#println("zk bestimmt")
 	i=nextprime(s)
 	n=s*1000+1000

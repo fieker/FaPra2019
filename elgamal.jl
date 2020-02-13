@@ -52,10 +52,10 @@ function testmyelgamal(m::BigInt)
 	@time p,P=diffiehellman0(m)
 	#println("p=",p)
 	#println("P=",P)
-	@time a,A=diffiehellmanA(P)
-	#println("A=",A)
 	@time M=encode(p,m)
 	#println("M=",M)
+	@time a,A=diffiehellmanA(P)
+	#println("A=",A)
 	@time B,C=elgamalB(M,A,P)
 	#println("C=",C)
 	@time Mneu=elgamalA(C,B,a)
@@ -63,4 +63,8 @@ function testmyelgamal(m::BigInt)
 	@time mneu=decode(Mneu)
 	#println("mneu=",mneu)
 	return m==mneu
+end
+
+function timeofideals(m::BigInt)
+	@time testmyelgamal(m)
 end
