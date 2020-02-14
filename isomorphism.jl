@@ -26,10 +26,12 @@ end
 
 @doc Markdown.doc"""
 iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt) -> Bool
+
 A=basis of an ideal over in O over Q[sqrt(-p)]
 w1=A[1]
 w2=A[2]
-(norm(w2*conj(w1)-w1*conj(w2))/sqrt(-p))>0??
+
+returns (norm(w2*conj(w1)-w1*conj(w2))/sqrt(-p))>0
 """
 function iscorrectly_ordered(A::Array{NfAbsOrdElem{AnticNumberField,nf_elem},1},p::BigInt)
 	w1=A[1]
@@ -41,10 +43,12 @@ end
 
 @doc Markdown.doc"""
 iscorrectly_ordered(A::Array{fmpz,2}) -> Bool
+
 A=basis of an ideal over in O over Q[sqrt(-p)]
 w1=A[1]
 w2=A[2]
-(norm(w2*conj(w1)-w1*conj(w2))/sqrt(-p))>0??
+
+returns(norm(w2*conj(w1)-w1*conj(w2))/sqrt(-p))>0
 """
 function iscorrectly_ordered(A::Array{fmpz,2})
 	a=A[1]
@@ -54,6 +58,7 @@ end
 	
 @doc Markdown.doc"""
 correctlyorderedbasis(I::NfOrdIdl,p::BigInt) -> NfAbsOrdElem{AnticNumberField,nf_elem},1}
+
 returns a correctly ordered basis of the ideal I
 """
 function correctlyorderedbasis(I::NfOrdIdl,p::BigInt)
@@ -66,6 +71,7 @@ end
 
 @doc Markdown.doc"""
 correctlyorderedbasis(A::Array{fmpz,2}) -> NfAbsOrdElem{AnticNumberField,nf_elem},1}
+
 returns A in correctly order
 """	
 function correctlyorderedbasis(A::Array{fmpz,2})
@@ -78,6 +84,7 @@ end
 
 @doc Markdown.doc"""
 fundamental(D::fmpz) -> 
+
 returns the corresponding discriminant of a quadratic number field if D is a fundamental discriminant of a binary quadratic form
 """	
 function fundamental(D::fmpz)
@@ -99,6 +106,7 @@ end
 
 @doc Markdown.doc"""
 formtoideal(f::QuadForm)-> NfOrdIdl
+
 determines the corresponding ideal in O over Q[sqrt(-p)] where p is the fundamental discriminant of f
 """
 function formtoideal(f::QuadForm)
@@ -121,6 +129,7 @@ end
 
 @doc Markdown.doc"""
 idealtoform(I::NfOrdIdl,p::BigInt,s::Int64) -> QuadForm
+
 determines the corresponding binary quadratic form with discriminant p or 4*p
 """
 function idealtoform(I::NfOrdIdl,p::BigInt,s::Int64)
@@ -139,6 +148,7 @@ end
 
 @doc Markdown.doc"""
 formtobasis(f::QuadForm) -> Array{fmpz,2}
+
 determines a basis of the corresponding ideal in O over Q[sqrt(-p)] where p is the fundamental discriminant
 """
 function formtobasis(f::QuadForm)
@@ -154,8 +164,9 @@ function formtobasis(f::QuadForm)
 end
 
 @doc Markdown.doc"""
-basistoform(A::Array{fmpz,2},d::fmpz)
-determines the corresponding binary quadratic form with discriminant d or 4*d
+basistoform(A::Array{fmpz,2},d::fmpz) -> QuadForm
+
+determines the corresponding binary quadratic form with discriminant 4*d (mod(rem(d,4),4)=3) where A is prime with A[3]=0, A[4]=1
 """
 function basistoform(A::Array{fmpz,2},d::fmpz)
 	A=correctlyorderedbasis(A)

@@ -1,3 +1,9 @@
+###
+@doc Markdown.doc"""
+positive_definite_form(f::QuadForm) -> QuadForm
+
+returns a positive definite form equivalent to f
+"""
 function positive_definite_form(f::QuadForm)
 	if f.a<0
 		f.a=-f.a
@@ -12,6 +18,13 @@ function isequal(f1::QuadForm,f2::QuadForm)
 	return f1.a==f2.a && f1.b==f2.b && f1.c==f2.c
 end
 
+@doc Markdown.doc"""
+formreduce(f::QuadForm)-> QuadForm
+
+returns the unique reduced (b|<=a<=c,c>0 if a=|b| or a=c then b>0) form equivalent to f
+
+f should be positive definite
+"""
 function formreduce(f::QuadForm)
 	f=positive_definite_form(f)
 	a = f.a
@@ -57,8 +70,6 @@ function formreduce(f::QuadForm)
 	return positive_definite_form(QuadForm(a, b, c))
 end
 
-#|b|<=a<=c,c>0 if a=|b| or a=c then b>0
-
 function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	v=0
 	d=a
@@ -85,6 +96,13 @@ function parteucl(a::fmpz,b::fmpz,L::fmpz)
 	return (z,d,v2,v3,v)
 end
 
+@doc Markdown.doc"""
+nudupl(f::QuadForm) -> QuadForm
+
+determines the square of f using the nudupl algorithm
+
+f should be positive definite and  primitive
+"""
 function nudupl(f::QuadForm)
 	f=formreduce(f)
 	a=f.a
@@ -125,8 +143,15 @@ function nudupl(f::QuadForm)
 	return formreduce(QuadForm(a2,b2,c2))
 end
 
+@doc Markdown.doc"""
+nucomp(f1::QuadForm,f2::QuadForm) -> QuadForm
+
+determines the composition of f1 and f2 using the nucomp algorithm
+
+f1 and f2 should be positive definite and primitive
+"""
 function nucomp(f1::QuadForm,f2::QuadForm)
-	e=QuadForm(1,0,fundamental(Hecke.discriminant(f1)))
+	e=QuadForm(1,0,fundamental(Hecke.discriminant(f1)))#funktioniert auch bei d=1 mod 4?
 	if isequal(f1,e)
 		return f2
 	elseif isequal(f2,e)
@@ -230,6 +255,13 @@ function nucomp(f1::QuadForm,f2::QuadForm)
 	end
 end	
 
+@doc Markdown.doc"""
+formpowmod(f::QuadForm,n::fmpz) -> QuadForm
+
+determines the n-th power of f using nucomp and nudupl
+
+f should be positive definite and primitive
+"""
 function formpowmod(f::QuadForm,n::fmpz)
 	s=sign(n)
 	n=abs(n)
@@ -250,6 +282,13 @@ function formpowmod(f::QuadForm,n::fmpz)
 	return g
 end
 
+@doc Markdown.doc"""
+formpowmodbit(f::QuadForm,n::fmpz) -> QuadForm
+
+determines the n-th power of f using nucomp and nudupl
+
+f should be positive definite and primitive
+"""
 function formpowmodbit(f::QuadForm,n::fmpz)
 	s=sign(n)
 	n=abs(n)
@@ -278,7 +317,12 @@ function formpowmodbit(f::QuadForm,n::fmpz)
 	end
 	return g
 end
-		
+	
+@doc Markdown.doc"""
+simplecompose(f1::QuadForm,f2::QuadForm) -> QuadForm
+
+determines the composition of f1 and f2 
+"""	
 function simplecompose(f1::QuadForm,f2::QuadForm)
 		D=Hecke.discriminant(f1)
 		a1=f1.a
@@ -300,6 +344,11 @@ function simplecompose(f1::QuadForm,f2::QuadForm)
 		return formreduce(f3)
 end
 
+@doc Markdown.doc"""
+simplepower(f::QuadForm,n::fmpz) -> QuadForm
+
+determines the n-th power of f 
+"""
 function simplepower(f::QuadForm,n::fmpz)
 	s=1
 	if n <0

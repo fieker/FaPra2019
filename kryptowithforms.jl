@@ -1,5 +1,21 @@
 ######
 @doc Markdown.doc"""
+find(d::fmpz) -> QuadForm
+
+returns a nontrivial reduced binary quadratic form with discriminant -d
+the corresponding ideal is nonprincipal
+"""
+function find(d::fmpz,s::fmpz)
+	i=nextprime(BigInt(s))
+	while jacobi(mod(BigInt(d),i),fmpz(i))!=1 && fmpz(i)<div(root(abs(d),2),4)
+		i=nextprime(i+1)
+	end
+	i=fmpz(i)
+	I=[i 0;-lift(root(GF(i)(d),2)) 1]
+	return basistoform(I,d)
+end
+
+@doc Markdown.doc"""
 diffiehellman0(m::fmpz) -> fmpz
 finds a random prime p>(2)^(nbits(fmpz(m))*2+100) with mod(-d,4)=3 
 """
@@ -10,27 +26,7 @@ function diffiehellman0(m::fmpz)
 		d=fmpz(nextprime(rand(i:i+10^10)))
 	end
 	push!(Hecke.big_primes,d)
-	return -d
-end
-
-@doc Markdown.doc"""
-find(d::fmpz) -> QuadForm
-
-returns a nontrivial reduced binary quadratic form with discriminant -d
-the corresponding ideal is nonprincipal
-"""
-function find(d::fmpz)
-	count=0
-	println(count)
-	@time i=nextprime(BigInt(div(div(root(abs(d),2),4),1000)))
-	while @time Hecke.isprime(i)==false || @time jacobi(mod(BigInt(d),i),fmpz(i))!=1
-		i=nextprime(BigInt(div(div(root(abs(d),2),4),1000)))
-		count+=1
-		println(count)
-	end
-	i=fmpz(i)
-	I=[i 0;-lift(root(GF(i)(d),2)) 1]
-	return basistoform(I,d)
+	return -d,find(-d,div(root(d,2),4*fmpz(2)^(div(nbits(d),2))))
 end
 
 @doc Markdown.doc"""
@@ -39,12 +35,13 @@ encode(m::fmpz,d::fmpz) -> QuadForm
 encodes Integer m to an binary quadratic form with discriminant -d
 """
 function encode(m::fmpz,d::fmpz)
-	for i=m*fmpz(10)^3:fmpz(floor(BigFloat(root(abs(d),2))/4))
-		if Hecke.isprime(i) && jacobi(mod(d,i),i)==1
-			M=[i 0;-lift(root(GF(i)(d),2)) 1]
-			return basistoform(M,d)
-		end
-	end
+	M=find(d,m*fmpz(10)^10)
+	#for i=m*fmpz(10)^3:fmpz(floor(BigFloat(root(abs(d),2))/4))
+	#	if Hecke.isprime(i) && jacobi(mod(d,i),i)==1
+	#		M=[i 0;-lift(root(GF(i)(d),2)) 1]
+	#		return basistoform(M,d)
+	#	end
+	#end
 end
 
 @doc Markdown.doc"""
@@ -54,7 +51,7 @@ decodes the decrypted binary quadratic form
 """
 function decode(M::QuadForm)
 	M=formtobasis(M)[1]
-	m=div(M,1000)
+	m=div(M,fmpz(10)^10)
 	return m
 end
 
@@ -113,9 +110,8 @@ function elgamalA(a::fmpz,B::QuadForm,C::QuadForm)
 end
 
 function testmyelgamalwithforms(m::fmpz)
-	d=diffiehellman0(m)
-	println("d=",d)
-	@time I=find(d)
+	d,I=diffiehellman0(m)
+	#println("d=",d)
 	#println("I=",I)
 	#println(1)
 	@time M=encode(m,d)
@@ -138,7 +134,7 @@ function testmyelgamalwithforms(m::fmpz)
 	@time mneu=decode(Mneu)
 	#println("mneu=",mneu)
 	#println(7)
-	return mneu=m
+	return mneu==m
 end
 
 function timeofforms(m::fmpz)
