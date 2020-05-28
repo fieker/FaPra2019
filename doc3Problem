@@ -1,0 +1,74 @@
+#####
+Problem mit Klassengruppe
+in Testfunktion:
+julia> testmyattack(BigInt(rand(10000:1000000000)))
+p=869972023
+c=GrpAb: Z/10311
+  0.000087 seconds (491 allocations: 23.316 KiB)
+  0.000002 seconds (2 allocations: 96 bytes)
+P=<8699720251, sqrt(-869972023)-750446206>
+Norm: 8699720251
+Minimum: 8699720251
+two normal wrt: 8699720251
+a=488737780314423524632351020704934909734998910586673567300492
+A=<23929, 44431513*sqrt(-869972023)+437890138>
+Norm: 23929
+Minimum: 23929
+two normal wrt: 23929
+^CERROR: InterruptException:
+Stacktrace:
+ [1] divrem at /users/cip/users/kaiserk/.julia/packages/Nemo/qzx0m/src/flint/fmpz_mod_poly.jl:478 [inlined]
+ [2] rresx_sircana(::fmpz_mod_poly, ::fmpz_mod_poly) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/Misc/nmod_poly.jl:599
+ [3] rresx at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/Misc/nmod_poly.jl:583 [inlined]
+ [4] _invmod(::fmpz, ::NfAbsOrdElem{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Ideal/Ideal.jl:1167
+ [5] inv_maximal(::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Ideal/Ideal.jl:897
+ [6] inv at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Ideal/Ideal.jl:869 [inlined]
+ [7] class_group_ideal_relation(::NfAbsOrdIdl{AnticNumberField,nf_elem}, ::Hecke.ClassGrpCtx{SMat{fmpz}}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:280
+ [8] class_group_disc_log at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:315 [inlined]
+ [9] (::getfield(Hecke, Symbol("#disclog#1673")){Hecke.ClassGrpCtx{SMat{fmpz}}})(::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:371
+ [10] (::getfield(Hecke, Symbol("##1669#1671")){Hecke.MapClassGrp})(::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:341
+ [11] preimage(::Hecke.MapClassGrp, ::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/Map/Map.jl:29
+ [12] attack(::BigInt, ::NfAbsOrdIdl{AnticNumberField,nf_elem}, ::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/FaPra2019/attack.jl:19
+ [13] testmyattack(::BigInt) at /users/cip/users/kaiserk/FaPra2019/attack.jl:55
+ [14] top-level scope at none:0
+
+Testfunktion zweites mal aufgerufen
+julia> testmyattack(BigInt(869972023
+       ))
+p=869972023
+c=GrpAb: Z/1
+  0.000105 seconds (491 allocations: 23.316 KiB)
+  0.000001 seconds (2 allocations: 96 bytes)
+P=<8699720251, sqrt(-869972023)-750446206>
+Norm: 8699720251
+Minimum: 8699720251
+two normal wrt: 8699720251
+a=151463761108058001087786431745822615343670065696446484898013
+A=<20597, 268299348*sqrt(-869972023)+130720698>
+Norm: 20597
+Minimum: 20597
+two normal wrt: 20597
+logP=771
+ERROR: AssertionError: Ia.den == 1
+Stacktrace:
+ [1] class_group_ideal_relation(::NfAbsOrdIdl{AnticNumberField,nf_elem}, ::Hecke.ClassGrpCtx{SMat{fmpz}}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:289
+ [2] class_group_disc_log at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:315 [inlined]
+ [3] (::getfield(Hecke, Symbol("#disclog#1673")){Hecke.ClassGrpCtx{SMat{fmpz}}})(::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:371
+ [4] (::getfield(Hecke, Symbol("##1669#1671")){Hecke.MapClassGrp})(::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/NfOrd/Clgp/Map.jl:341
+ [5] preimage(::Hecke.MapClassGrp, ::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/.julia/packages/Hecke/I5CGA/src/Map/Map.jl:29
+ [6] attack(::BigInt, ::NfAbsOrdIdl{AnticNumberField,nf_elem}, ::NfAbsOrdIdl{AnticNumberField,nf_elem}) at /users/cip/users/kaiserk/FaPra2019/attack.jl:21
+ [7] testmyattack(::BigInt) at /users/cip/users/kaiserk/FaPra2019/attack.jl:55
+ [8] top-level scope at none:0
+
+Klassengruppe von Hand berechnet
+julia> p=BigInt(869972023)
+869972023
+
+julia> k,a=quadratic_field(-p)
+(Imaginary quadratic field by x^2+869972023, sqrt(-869972023))
+
+julia> c,mc=class_group(k)
+(GrpAb: Z/922, ClassGroup map of 
+Set of ideals of O_k
+)
+

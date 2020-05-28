@@ -1,47 +1,70 @@
+#####
+@doc Markdown.doc"""
+encode(p::BigInt,m::BigInt) -> NfAbsOrdIdl
+
+encodes Integer m to an ideal in O over Q[sqrt(-p)]
+"""
 function encode(p::BigInt,m::BigInt)
-#include find.jl
-	M=findnonprincipal(BigInt(p),m*10^6,BigInt(m*10^7))
+	M=findnonprincipal(BigInt(p),m*10^8)
+	#println("Nachricht kodiert")
 	return Hecke.reduce_ideal(M)
 end
 
+@doc Markdown.doc"""
+elgamalB(M::NfAbsOrdIdl,A::NfAbsOrdIdl,P::NfAbsOrdIdl) -> NfAbsOrdIdl, NfAbsOrdIdl
+
+determines private key of the transmitter via P
+|
+encryts M with the public key A of the receiver 
+"""
 function elgamalB(M::NfAbsOrdIdl,A::NfAbsOrdIdl,P::NfAbsOrdIdl)
-	b=abs(rand(Int64))
+	b=abs(rand(10000000:fmpz(10)^60))
 	B=Hecke.power_class(P,fmpz(b))	
-	C=(M*(Hecke.power_class(A,fmpz(b))))
-	return C,B
+	C=Hecke.reduce_ideal(M*(Hecke.power_class(A,fmpz(b))))
+	#println("Nachricht verschlüsselt")
+	return B,C
 end
 
-function elgamalA(C::NfAbsOrdIdl,B::NfAbsOrdIdl,a::Int64)
+@doc Markdown.doc"""
+elgamalA(C::NfAbsOrdIdl,B::NfAbsOrdIdl,a::fmpz) -> NfAbsOrdIdl
+
+decrypts C with the public key B of the transmitter and the private key a of the receiver
+"""
+function elgamalA(C::NfAbsOrdIdl,B::NfAbsOrdIdl,a::fmpz)
 	M=C*(Hecke.power_class(B,fmpz(-a)))
+	#println("Nachricht entschlüsselt")
 	return Hecke.reduce_ideal(M)
 end
 
+@doc Markdown.doc"""
+decode(M::NfAbsOrdIdl) -> BigInt
+
+decodes the decrypted ideal
+"""
 function decode(M::NfAbsOrdIdl)
-	m=divrem(M.gen_one,10^6)[1]
-	return m
+	m=divrem(M.gen_one,10^8)[1]
+	#println("Nachricht dekodiert")
+	return BigInt(m)
 end
 
-function testmyelgamal(i::BigInt,m::BigInt)
-	#i=BigInt(10)
-	println("i=",i)
-	#m=BigInt(17)
+function testmyelgamal(m::BigInt)
 	println("m=",m)
-	p,P=diffiehellman0(i)
-	println("p=",p)
-	println("P=",P)
-	a,A=diffiehellmanA(P)
-	println("A=",A)
-	M=encode(p,m)
-	println("M=",M)
-	C,B=elgamalB(M,A,P)
-	println("C=",C)
-	Mneu=elgamalA(C,B,a)
-	println("Mneu=",Mneu)
-	mneu=decode(Mneu)
-	println("mneu=",mneu)
-	if m==mneu
-		print("ja")
-	else
-		print("nein")
-	end
+	@time p,P=diffiehellman0(m)
+	#println("p=",p)
+	#println("P=",P)
+	@time M=encode(p,m)
+	#println("M=",M)
+	@time a,A=diffiehellmanA(P)
+	#println("A=",A)
+	@time B,C=elgamalB(M,A,P)
+	#println("C=",C)
+	@time Mneu=elgamalA(C,B,a)
+	#println("Mneu=",Mneu)
+	@time mneu=decode(Mneu)
+	#println("mneu=",mneu)
+	return m==mneu
+end
+
+function timeofideals(m::BigInt)
+	@time testmyelgamal(m)
 end
